@@ -1,0 +1,8 @@
+/home/fran/Escritorio/FSIV/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/FSIV/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/FSIV/build/CMakeFiles/ej1.dir
+/home/fran/Escritorio/FSIV/build/CMakeFiles/prg5.dir
+/home/fran/Escritorio/FSIV/build/CMakeFiles/prg4.dir
+/home/fran/Escritorio/FSIV/build/CMakeFiles/prg3.dir
+/home/fran/Escritorio/FSIV/build/CMakeFiles/prg2.dir
+/home/fran/Escritorio/FSIV/build/CMakeFiles/prg1.dir

@@ -1,0 +1,5 @@
+/home/fran/Escritorio/Universidad/FSIV/P2/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P2/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P2/CMakeFiles/options.dir
+/home/fran/Escritorio/Universidad/FSIV/P2/CMakeFiles/ej2.dir
+/home/fran/Escritorio/Universidad/FSIV/P2/CMakeFiles/ej1.dir

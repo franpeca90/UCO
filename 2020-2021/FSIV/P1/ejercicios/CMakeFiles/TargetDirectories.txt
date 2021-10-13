@@ -1,0 +1,4 @@
+/home/fran/Escritorio/FSIV/ejercicios/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/FSIV/ejercicios/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/FSIV/ejercicios/CMakeFiles/prueba2.dir
+/home/fran/Escritorio/FSIV/ejercicios/CMakeFiles/ej1.dir

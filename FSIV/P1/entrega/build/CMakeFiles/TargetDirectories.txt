@@ -1,0 +1,3 @@
+/home/fran/Escritorio/Universidad/FSIV/P1/entrega/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P1/entrega/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P1/entrega/build/CMakeFiles/assignment1.dir

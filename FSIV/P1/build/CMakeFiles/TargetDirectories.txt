@@ -1,0 +1,4 @@
+/home/fran/Escritorio/Universidad/FSIV/P1/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P1/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P1/build/CMakeFiles/oldP1.dir
+/home/fran/Escritorio/Universidad/FSIV/P1/build/CMakeFiles/foreground_highlight.dir
