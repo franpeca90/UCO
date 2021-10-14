@@ -67,10 +67,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/fran/Escritorio/Universidad/FSIV/P1/entrega
+CMAKE_SOURCE_DIR = /home/fran/Escritorio/Universidad/FSIV/P6
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/fran/Escritorio/Universidad/FSIV/P1/entrega/build
+CMAKE_BINARY_DIR = /home/fran/Escritorio/Universidad/FSIV/P6/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -99,9 +99,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/fran/Escritorio/Universidad/FSIV/P1/entrega/build/CMakeFiles /home/fran/Escritorio/Universidad/FSIV/P1/entrega/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/fran/Escritorio/Universidad/FSIV/P6/build/CMakeFiles /home/fran/Escritorio/Universidad/FSIV/P6/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/fran/Escritorio/Universidad/FSIV/P1/entrega/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/fran/Escritorio/Universidad/FSIV/P6/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -130,44 +130,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named assignment1
+# Target rules for targets named assignment6
 
 # Build rule for target.
-assignment1: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 assignment1
-.PHONY : assignment1
+assignment6: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 assignment6
+.PHONY : assignment6
 
 # fast build rule for target.
-assignment1/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment1.dir/build.make CMakeFiles/assignment1.dir/build
-.PHONY : assignment1/fast
+assignment6/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment6.dir/build.make CMakeFiles/assignment6.dir/build
+.PHONY : assignment6/fast
 
-assignment1.o: assignment1.cpp.o
+assignment6.o: assignment6.cpp.o
 
-.PHONY : assignment1.o
+.PHONY : assignment6.o
 
 # target to build an object file
-assignment1.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment1.dir/build.make CMakeFiles/assignment1.dir/assignment1.cpp.o
-.PHONY : assignment1.cpp.o
+assignment6.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment6.dir/build.make CMakeFiles/assignment6.dir/assignment6.cpp.o
+.PHONY : assignment6.cpp.o
 
-assignment1.i: assignment1.cpp.i
+assignment6.i: assignment6.cpp.i
 
-.PHONY : assignment1.i
+.PHONY : assignment6.i
 
 # target to preprocess a source file
-assignment1.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment1.dir/build.make CMakeFiles/assignment1.dir/assignment1.cpp.i
-.PHONY : assignment1.cpp.i
+assignment6.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment6.dir/build.make CMakeFiles/assignment6.dir/assignment6.cpp.i
+.PHONY : assignment6.cpp.i
 
-assignment1.s: assignment1.cpp.s
+assignment6.s: assignment6.cpp.s
 
-.PHONY : assignment1.s
+.PHONY : assignment6.s
 
 # target to generate assembly for a file
-assignment1.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment1.dir/build.make CMakeFiles/assignment1.dir/assignment1.cpp.s
-.PHONY : assignment1.cpp.s
+assignment6.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assignment6.dir/build.make CMakeFiles/assignment6.dir/assignment6.cpp.s
+.PHONY : assignment6.cpp.s
 
 # Help Target
 help:
@@ -177,10 +177,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... assignment1"
-	@echo "... assignment1.o"
-	@echo "... assignment1.i"
-	@echo "... assignment1.s"
+	@echo "... assignment6"
+	@echo "... assignment6.o"
+	@echo "... assignment6.i"
+	@echo "... assignment6.s"
 .PHONY : help
 
 

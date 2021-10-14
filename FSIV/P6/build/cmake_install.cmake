@@ -1,4 +1,4 @@
-# Install script for directory: /home/fran/Escritorio/Universidad/FSIV/P1/entrega
+# Install script for directory: /home/fran/Escritorio/Universidad/FSIV/P6
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/fran/Escritorio/Universidad/FSIV/P1/entrega/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/fran/Escritorio/Universidad/FSIV/P6/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

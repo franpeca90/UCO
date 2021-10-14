@@ -8,7 +8,7 @@ How to compile
 
 How to run the program
 ======================
-    - ./assignment4 [image path]
+    - ./assignment5 [image path]
 
 
 How to use

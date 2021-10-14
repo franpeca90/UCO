@@ -1,5 +1,6 @@
 # UCO
 
-
-# Test
-# test 2
+git add .
+git commit -m "Mensaje"
+git pull
+git push
