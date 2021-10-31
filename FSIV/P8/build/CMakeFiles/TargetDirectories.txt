@@ -1,0 +1,4 @@
+/home/fran/Escritorio/Universidad/FSIV/P8/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P8/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P8/build/CMakeFiles/augReal.dir
+/home/fran/Escritorio/Universidad/FSIV/P8/build/CMakeFiles/calibration.dir
