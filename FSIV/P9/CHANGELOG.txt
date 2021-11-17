@@ -1,0 +1,8 @@
+* 05/Nov/2021 [mjmarin]: first public version
+
+* 16/Nov/2021 [fjperez]: In CMakeList.txt :
+                                Changed minimum cmake version from 3.0 to 2.7 
+                                Now cmake 3.0 version is not required
+                                vsegadv add_executable line is commented
+                             
+                             vsegbase.cpp 104 and 113 lines were changed because of OpenCV version's problems
