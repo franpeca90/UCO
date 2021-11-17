@@ -28,6 +28,17 @@ int __Debug_Level = 0;
 
 /*
   Use CMake to compile
+
+  Documentation:
+
+  - copyTo() : https://docs.opencv.org/3.4/d3/d63/classcv_1_1Mat.html#a33fd5d125b4c302b0c9aa86980791a77
+  - gaussianBlur() : https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1
+  - cvtColor() : https://docs.opencv.org/3.4/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab
+
+  NOTE: This functions are same that we created on assignment 7, I will use the functions of OpenCV
+  - Morphological Transformations : https://docs.opencv.org/3.4/d9/d61/tutorial_py_morphological_ops.html
+  - erode() : https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb
+  - dilate() : https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c
 */
 
 const cv::String keys =
@@ -36,7 +47,8 @@ const cv::String keys =
     "{verbose        |0     | Set the verbose level.}"
 #endif    
     "{t threshold    |13     | Segmentation threshold.}"
-    "{s              |0   | Radius of structural element.}"    
+    "{s              |0   | Radius of structural element.}"   
+    "{g              |  | Size of Gaussian's Kernel}" //New line for the size
     "{c              |  | Use the camera?}"
     "{@input         |<none>| Path to video/Camera index.}"
     "{@output        |<none>| Path to output video.}"
@@ -51,6 +63,7 @@ int main (int argc, char * const argv[])
   const char * fileout = 0;
   char opt;
   int radius = 0;
+  int sizeGkernel = 0; //New variable that stores the size of the Gaussian's Kernel
   
   cv::CommandLineParser parser(argc, argv, keys);
   parser.about("Background segmentation in video.");
@@ -68,6 +81,12 @@ int main (int argc, char * const argv[])
   std::string output_path = parser.get<std::string>("@output");
   threshold = parser.get<int>("threshold");  
   radius = parser.get<int>("s");
+  sizeGkernel = parser.get<int>("g"); // We get the size that user wants
+
+  if((sizeGkernel>0) && ((sizeGkernel%2)==0)){ // Checking that size is an odd number
+    cerr << "ERROR: The kernel's size must be odd\n";
+    abort();
+  }
 
   filein = input_path.c_str();
   fileout = output_path.c_str();
@@ -127,16 +146,38 @@ int main (int argc, char * const argv[])
   while(wasOk && key!=27)
   {
     frameNumber++;
-
-    cv::imshow ("Input", inFrame);    
+   
   
 	  // Do your processing
 	  // TODO
+    
+    // Creation of the previus frame
     Mat prevFrame;
-    inFrame.copyTo(prevFrame); //This fram will be our previus frame
+    inFrame.copyTo(prevFrame);
 
-    wasOk = input.read(inFrame); //Same as: input >> inFrame . Now we get the next frame
-        
+    namedWindow("Input");
+    cv::imshow ("Input", inFrame); 
+
+    // Now we get the next frame
+    wasOk = input.read(inFrame); // Same as: input >> inFrame
+    
+    if((wasOk) && (inFrame.empty()==false)){
+
+      // We apply the Gaussian's filter to both frames
+      if (sizeGkernel > 0){
+        GaussianBlur( inFrame, inFrame, Size(sizeGkernel, sizeGkernel), 0);
+        GaussianBlur( prevFrame, prevFrame, Size(sizeGkernel, sizeGkernel), 0);
+      }
+    
+      fsiv_segm_by_dif(prevFrame, inFrame, outFrame, threshold, radius);
+ 
+      namedWindow("Input");
+      cv::imshow ("Input", outFrame);
+    } 
+
+
+
+
     // TODO Apply the mask to the original frame and show
 
 
@@ -144,10 +185,10 @@ int main (int argc, char * const argv[])
 
 
     // TODO Add frame to output video
-    output.write(outFrame); //Same as: output << inFrame
+//    output.write(outFrame); //Same as: output << inFrame
     
     
-    waitKey(30);
+    waitKey(10);
   }           
   return 0;
 }
