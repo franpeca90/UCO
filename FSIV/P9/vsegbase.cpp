@@ -155,8 +155,7 @@ int main (int argc, char * const argv[])
     Mat prevFrame;
     inFrame.copyTo(prevFrame);
 
-    namedWindow("Input");
-    cv::imshow ("Input", inFrame); 
+
 
     // Now we get the next frame
     wasOk = input.read(inFrame); // Same as: input >> inFrame
@@ -171,8 +170,8 @@ int main (int argc, char * const argv[])
     
       fsiv_segm_by_dif(prevFrame, inFrame, outFrame, threshold, radius);
  
-      namedWindow("Input");
-      cv::imshow ("Input", outFrame);
+      namedWindow("Output");
+      cv::imshow ("Output", outFrame); 
     } 
 
 

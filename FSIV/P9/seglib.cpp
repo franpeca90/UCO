@@ -19,34 +19,66 @@ using namespace cv;
 void fsiv_segm_by_dif(const cv::Mat & prevFrame, const cv::Mat & curFrame, cv::Mat & difimg, int thr, int r)
 {
    // WRITE ME
-   
+   Mat aux1, aux2;
+   curFrame.copyTo(aux1);
+   prevFrame.copyTo(aux2);
+
+   //We change from RGB to gray scale (0 to 255)
+   cvtColor(aux1, aux1, COLOR_BGR2GRAY);
+   cvtColor(aux2, aux2, COLOR_BGR2GRAY);
+
+   aux1.copyTo(difimg);
+/*
    // We apply the morphological operations (Opening + Closing)
    if (r > 0){
       //Creation of the kernel
       Mat morphologicalKernel(r, r, CV_32FC1);
-      morphologicalKernel = Mat::ones(r, r, CV_32FC1);
-      cout << "test" <<endl;          
-      //We change from RGB to gray scale (0 to 255)
-      cvtColor(curFrame, curFrame, COLOR_BGR2GRAY);
-      cvtColor(prevFrame, prevFrame, COLOR_BGR2GRAY);
-     
+      morphologicalKernel = Mat::ones(r, r, CV_32FC1);        
+
       // Opening
-      erode(curFrame, curFrame, morphologicalKernel, Point(-1,-1));
-      dilate(curFrame, curFrame, morphologicalKernel, Point(-1,-1));
+      erode(aux1, aux1, morphologicalKernel, Point(-1,-1));
+      dilate(aux1, aux1, morphologicalKernel, Point(-1,-1));
       
-      erode(prevFrame, prevFrame, morphologicalKernel, Point(-1,-1));
-      dilate(prevFrame, prevFrame, morphologicalKernel, Point(-1,-1));
+      erode(aux2, aux2, morphologicalKernel, Point(-1,-1));
+      dilate(aux2, aux2, morphologicalKernel, Point(-1,-1));
 
       // Closing
-      dilate(curFrame, curFrame, morphologicalKernel, Point(-1,-1));
-      erode(curFrame, curFrame, morphologicalKernel, Point(-1,-1));
+      dilate(aux1, aux1, morphologicalKernel, Point(-1,-1));
+      erode(aux1, aux1, morphologicalKernel, Point(-1,-1));
 
-      dilate(prevFrame, prevFrame, morphologicalKernel, Point(-1,-1));
-      erode(prevFrame, prevFrame, morphologicalKernel, Point(-1,-1));
+      dilate(aux2, aux2, morphologicalKernel, Point(-1,-1));
+      erode(aux2, aux2, morphologicalKernel, Point(-1,-1));
+
+   }
+*/
+   Mat diff;
+   absdiff(aux1, aux2, diff);
+
+   // We do the "I_t+1 - I_t > threshold" operation for every pixel
+   for(int x=0 ; x<diff.rows ; x++){ //Where x and y are the position of the image's pixels
+        for(int y=0 ; y<diff.cols ; y++){        
+            if(diff.at<uchar>(x,y) > thr){ 
+                difimg.at<uchar>(x,y) = 255;
+            } else {
+                difimg.at<uchar>(x,y) = 0; 
+            }
+         }
    }
 
+   if (r > 0){
+      //Creation of the kernel
+      Mat morphologicalKernel(r, r, CV_32FC1);
+      morphologicalKernel = Mat::ones(r, r, CV_32FC1);        
 
-   
+      // Opening
+      erode(difimg, difimg, morphologicalKernel, Point(-1,-1));
+      dilate(difimg, difimg, morphologicalKernel, Point(-1,-1));
+
+      // Closing
+      dilate(difimg, difimg, morphologicalKernel, Point(-1,-1));
+      erode(difimg, difimg, morphologicalKernel, Point(-1,-1));
+   }
+
 }
 
 void fsiv_apply_mask(const cv::Mat & frame, const cv::Mat & mask, cv::Mat & outframe)
