@@ -10,6 +10,8 @@
   - erode() : https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb
   - dilate() : https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c
 
+   - bitwise operations : https://docs.opencv.org/3.4/dd/d4d/tutorial_js_image_arithmetics.html
+
 */
 
 #include "seglib.hpp"
@@ -28,29 +30,7 @@ void fsiv_segm_by_dif(const cv::Mat & prevFrame, const cv::Mat & curFrame, cv::M
    cvtColor(aux2, aux2, COLOR_BGR2GRAY);
 
    aux1.copyTo(difimg);
-/*
-   // We apply the morphological operations (Opening + Closing)
-   if (r > 0){
-      //Creation of the kernel
-      Mat morphologicalKernel(r, r, CV_32FC1);
-      morphologicalKernel = Mat::ones(r, r, CV_32FC1);        
 
-      // Opening
-      erode(aux1, aux1, morphologicalKernel, Point(-1,-1));
-      dilate(aux1, aux1, morphologicalKernel, Point(-1,-1));
-      
-      erode(aux2, aux2, morphologicalKernel, Point(-1,-1));
-      dilate(aux2, aux2, morphologicalKernel, Point(-1,-1));
-
-      // Closing
-      dilate(aux1, aux1, morphologicalKernel, Point(-1,-1));
-      erode(aux1, aux1, morphologicalKernel, Point(-1,-1));
-
-      dilate(aux2, aux2, morphologicalKernel, Point(-1,-1));
-      erode(aux2, aux2, morphologicalKernel, Point(-1,-1));
-
-   }
-*/
    Mat diff;
    absdiff(aux1, aux2, diff);
 
@@ -84,6 +64,27 @@ void fsiv_segm_by_dif(const cv::Mat & prevFrame, const cv::Mat & curFrame, cv::M
 void fsiv_apply_mask(const cv::Mat & frame, const cv::Mat & mask, cv::Mat & outframe)
 {
    // WRITE ME
+   Mat aux1, aux2;
+   frame.copyTo(aux1); //The frame is rgb
+   mask.copyTo(aux2);  //The mask is one-channel
+
+   cvtColor(mask, aux2, 3); //We change the mask from 1 channel to 3 channel
+
+   //With this, now we can operate the frame and the mask
+   for(int x=0 ; x<outframe.rows ; x++){ //Where x and y are the position of the image's pixels
+        for(int y=0 ; y<outframe.cols ; y++){
+            //We use the operator & to take only those pixels that are "behind the kernel"
+            outframe.at<Vec3b>(x,y)[0] = aux1.at<Vec3b>(x,y)[0] & aux2.at<Vec3b>(x,y)[0];
+            outframe.at<Vec3b>(x,y)[1] = aux1.at<Vec3b>(x,y)[1] & aux2.at<Vec3b>(x,y)[1];
+            outframe.at<Vec3b>(x,y)[2] = aux1.at<Vec3b>(x,y)[2] & aux2.at<Vec3b>(x,y)[2];
+
+         }
+   }
+   
+   //Note for me: Instead of using &, we could have multiply the frame and the kernel and get those points where
+   //the pixels are different from zero?. Maybe do this using the only the mask and not multiplying?
+   // --> Ask to the teacher
+
 }
 
 // ================= OPTIONAL PART STARTS HERE =======================

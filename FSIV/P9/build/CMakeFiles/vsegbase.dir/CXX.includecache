@@ -6,10 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/fran/Escritorio/Universidad/FSIV/P9/seglib.cpp
-seglib.hpp
-/home/fran/Escritorio/Universidad/FSIV/P9/seglib.hpp
-
 /home/fran/Escritorio/Universidad/FSIV/P9/seglib.hpp
 iostream
 -
@@ -19,6 +15,32 @@ opencv2/imgproc/imgproc.hpp
 -
 opencv2/highgui/highgui.hpp
 -
+
+/home/fran/Escritorio/Universidad/FSIV/P9/vsegbase.cpp
+iostream
+-
+vector
+-
+string
+-
+cstdlib
+-
+ctype.h
+-
+cmath
+-
+opencv2/core/utility.hpp
+-
+opencv2/core/core.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/video/video.hpp
+-
+seglib.hpp
+/home/fran/Escritorio/Universidad/FSIV/P9/seglib.hpp
 
 /usr/include/opencv4/opencv2/core.hpp
 opencv2/core/cvdef.h
@@ -71,6 +93,10 @@ opencv2/core/check.hpp
 /usr/include/opencv4/opencv2/core/check.hpp
 opencv2/core/base.hpp
 -
+
+/usr/include/opencv4/opencv2/core/core.hpp
+opencv2/core.hpp
+/usr/include/opencv4/opencv2/core/opencv2/core.hpp
 
 /usr/include/opencv4/opencv2/core/cv_cpu_dispatch.h
 cv_cpu_config.h
@@ -369,6 +395,26 @@ opencv2/imgproc.hpp
 /usr/include/opencv4/opencv2/imgproc/opencv2/imgproc.hpp
 
 /usr/include/opencv4/opencv2/opencv_modules.hpp
+
+/usr/include/opencv4/opencv2/video.hpp
+opencv2/video/tracking.hpp
+/usr/include/opencv4/opencv2/opencv2/video/tracking.hpp
+opencv2/video/background_segm.hpp
+/usr/include/opencv4/opencv2/opencv2/video/background_segm.hpp
+
+/usr/include/opencv4/opencv2/video/background_segm.hpp
+opencv2/core.hpp
+/usr/include/opencv4/opencv2/video/opencv2/core.hpp
+
+/usr/include/opencv4/opencv2/video/tracking.hpp
+opencv2/core.hpp
+/usr/include/opencv4/opencv2/video/opencv2/core.hpp
+opencv2/imgproc.hpp
+/usr/include/opencv4/opencv2/video/opencv2/imgproc.hpp
+
+/usr/include/opencv4/opencv2/video/video.hpp
+opencv2/video.hpp
+/usr/include/opencv4/opencv2/video/opencv2/video.hpp
 
 /usr/include/opencv4/opencv2/videoio.hpp
 opencv2/core.hpp

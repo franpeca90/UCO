@@ -9,14 +9,31 @@ IMC: lab assignment 3
 """
 
 # TODO Include all neccesary imports
-import pickle
-import os
+import pickle # Módulo de python que permite representar objetos en cadenas de bytes. Permite almacenamiento en ficheros o BBDD
+import os # Módulo que permite acceder a rutinas o funciones relacionadas con el sistema operativo, sobre todo para lectura y escritura de ficheros
+import click # Módulo para la creacion de interfaces en líneas de comandos.
 
-@click.command()
-@click.option('--train_file', '-t', default=None, required=False,
-              help=u'Name of the file with training data.')
+import numpy as np # Modulo numpy, da variables, estructuras y funciones matemáticas
+
+@click.command() #"Decorator", perimte que la funcion tenga argumentos/opciones dadas por consola
+@click.option('--train_file', '-t', default=None, required=False, # Se indica las opciones, si tiene valor por defecto y si es obligatorio
+              help=u'Name of the file with training data.') # Información en caso de que se muestre la ayuda por consola
 
 # TODO Include the rest of parameters...
+
+@click.option('--test_file', '-T', default=None, required=False,
+              help=u'Name of the file with test data.')
+@click.option('--classification',  '-c', is_flag=True,
+              help=u'The problem considered is a classification problem.')
+@click.option('--ratio_rbf',  '-r', default=0.1, required=False, type=float,
+              help=u'Ratio of RBF neurons (as a fraction of 1) with respect to the total number of patterns.')              
+@click.option('--l2',  '-l', is_flag=True,
+              help=u'Use L2 regularization istead of L1 (logistic regression).')        
+@click.option('--eta', '-e', default=None, required=False, type=float,
+              help=u'Value of the regularization parameter for logistic regression.')
+@click.option('--outputs', '-o', default=1, required=False, type=int,
+              help=u'Number of columns that will be used as target variables (all at the end).')
+########
 
 @click.option('--pred', '-p', is_flag=True, default=False, show_default=True,
               help=u'Use the prediction mode.') # KAGGLE
@@ -31,20 +48,27 @@ def train_rbf_total(train_file, test_file, classification, ratio_rbf, l2, eta, o
 
     if not pred:    
 
-        if train_file is None:
+        if train_file is None: # Se termina el programa si no hay datos de entrenamiento
             print("You have not specified the training file (-t)")
             return
+            
+        if test_file is None: # Si el usuario no introduce datos para el test, se usaran los de entrenamiento
+            print("No test file introduced, using training data as test data")
+            test_file = train_file
 
-        train_mses = np.empty(5)
+        if eta is None: # Valor por defecto de parametro eta
+            eta = np.exp(1)-2
+
+        train_mses = np.empty(5) # Da vectores vacíos del tamaño indicado 
         train_ccrs = np.empty(5)
         test_mses = np.empty(5)
         test_ccrs = np.empty(5)
     
-        for s in range(1,6,1):   
+        for s in range(1,6,1): # Va del 1 al 5 de uno en uno   
             print("-----------")
             print("Seed: %d" % s)
             print("-----------")     
-            np.random.seed(s)
+            np.random.seed(s) # Generación de la semilla
             train_mses[s-1], test_mses[s-1], train_ccrs[s-1], test_ccrs[s-1] = \
                 train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs, \
                              model and "{}/{}.pickle".format(model, s) or "")
@@ -188,6 +212,7 @@ def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs
         """
 
     return train_mse, test_mse, train_ccr, test_ccr
+
 
 def read_data(train_file, test_file, outputs):
     """ Read the input data
@@ -406,6 +431,6 @@ def predict(test_file, model_file):
         test_predictions = np.dot(test_r, coeficientes)
         
     return test_predictions
-    
+
 if __name__ == "__main__":
     train_rbf_total()

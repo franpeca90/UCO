@@ -145,17 +145,15 @@ int main (int argc, char * const argv[])
 
   while(wasOk && key!=27)
   {
-    frameNumber++;
-   
-  
+    frameNumber++;  
 	  // Do your processing
 	  // TODO
     
     // Creation of the previus frame
     Mat prevFrame;
+    Mat result;
+    Mat mask;
     inFrame.copyTo(prevFrame);
-
-
 
     // Now we get the next frame
     wasOk = input.read(inFrame); // Same as: input >> inFrame
@@ -167,27 +165,27 @@ int main (int argc, char * const argv[])
         GaussianBlur( inFrame, inFrame, Size(sizeGkernel, sizeGkernel), 0);
         GaussianBlur( prevFrame, prevFrame, Size(sizeGkernel, sizeGkernel), 0);
       }
-    
-      fsiv_segm_by_dif(prevFrame, inFrame, outFrame, threshold, radius);
- 
-      namedWindow("Output");
-      cv::imshow ("Output", outFrame); 
+      //We obtain the mask
+      fsiv_segm_by_dif(prevFrame, inFrame, mask, threshold, radius);
+      
+      // TODO Apply the mask to the original frame and show
+      //Finally we apply the mask into the original image
+      fsiv_apply_mask(inFrame, mask, outFrame);
+
+      namedWindow("Original");
+      imshow ("Original", inFrame);  
+
+      namedWindow("Mask");
+      imshow ("Mask", mask); 
+
+      namedWindow("Result");
+      imshow ("Result", outFrame); 
     } 
 
-
-
-
-    // TODO Apply the mask to the original frame and show
-
-
-    // Preparing the next iteration
-
-
     // TODO Add frame to output video
-//    output.write(outFrame); //Same as: output << inFrame
-    
-    
-    waitKey(10);
+    output.write(outFrame); //Same as: output << inFrame
+       
+    key=waitKey(1);
   }           
   return 0;
 }
