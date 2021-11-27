@@ -7,6 +7,13 @@ IMC: lab assignment 3
 
 @author: pagutierrez
 """
+##### Documentacion #####
+
+# Encima de cada funcion se encontraran los enlaces a la documentacion de las funciones de los modulos usados
+
+#########################
+
+
 
 # TODO Include all neccesary imports
 import pickle # Módulo de python que permite representar objetos en cadenas de bytes. Permite almacenamiento en ficheros o BBDD
@@ -14,6 +21,10 @@ import os # Módulo que permite acceder a rutinas o funciones relacionadas con e
 import click # Módulo para la creacion de interfaces en líneas de comandos.
 
 import numpy as np # Modulo numpy, da variables, estructuras y funciones matemáticas
+import pandas as pd # Modulo pandas, para manipulación y análisis de datos
+from sklearn.model_selection import train_test_split
+from sklearn.cluster import KMeans
+
 
 @click.command() #"Decorator", perimte que la funcion tenga argumentos/opciones dadas por consola
 @click.option('--train_file', '-t', default=None, required=False, # Se indica las opciones, si tiene valor por defecto y si es obligatorio
@@ -28,7 +39,7 @@ import numpy as np # Modulo numpy, da variables, estructuras y funciones matemá
 @click.option('--ratio_rbf',  '-r', default=0.1, required=False, type=float,
               help=u'Ratio of RBF neurons (as a fraction of 1) with respect to the total number of patterns.')              
 @click.option('--l2',  '-l', is_flag=True,
-              help=u'Use L2 regularization istead of L1 (logistic regression).')        
+              help=u'Use L2 regularization instead of L1 (logistic regression).')        
 @click.option('--eta', '-e', default=None, required=False, type=float,
               help=u'Value of the regularization parameter for logistic regression.')
 @click.option('--outputs', '-o', default=1, required=False, type=int,
@@ -57,11 +68,12 @@ def train_rbf_total(train_file, test_file, classification, ratio_rbf, l2, eta, o
             test_file = train_file
 
         if eta is None: # Valor por defecto de parametro eta
-            eta = np.exp(1)-2
+            eta = 0,1
 
-        train_mses = np.empty(5) # Da vectores vacíos del tamaño indicado 
+        # np.empty da vectores vacíos del tamaño indicado
+        train_mses = np.empty(5) # Error de tipo MSE y el porcentaje de patrones bien clasificados (CCR) para el conjunto de entrenamiento
         train_ccrs = np.empty(5)
-        test_mses = np.empty(5)
+        test_mses = np.empty(5) # Lo mismo pero para el conjunto de test
         test_ccrs = np.empty(5)
     
         for s in range(1,6,1): # Va del 1 al 5 de uno en uno   
@@ -71,7 +83,7 @@ def train_rbf_total(train_file, test_file, classification, ratio_rbf, l2, eta, o
             np.random.seed(s) # Generación de la semilla
             train_mses[s-1], test_mses[s-1], train_ccrs[s-1], test_ccrs[s-1] = \
                 train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs, \
-                             model and "{}/{}.pickle".format(model, s) or "")
+                             model and "{}/{}.pickle".format(model, s) or "") 
             print("Training MSE: %f" % train_mses[s-1])
             print("Test MSE: %f" % test_mses[s-1])
             print("Training CCR: %.2f%%" % train_ccrs[s-1])
@@ -155,12 +167,15 @@ def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs
             Training accuracy (CCR) of the model 
             For regression, we will return a 0
     """
+    # Lectura de los ficheros de datos
     train_inputs, train_outputs, test_inputs, test_outputs = read_data(train_file, 
                                                                         test_file,
                                                                         outputs)
 
     #TODO: Obtain num_rbf from ratio_rbf
+    num_rbf = round(ratio_rbf*(len(train_inputs.index))) # Obtenemos el numero de patrones y multiplicamos por el ratio, despues redondeamos
     print("Number of RBFs used: %d" %(num_rbf))
+
     kmeans, distances, centers = clustering(classification, train_inputs, 
                                               train_outputs, num_rbf)
     
@@ -214,6 +229,9 @@ def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs
     return train_mse, test_mse, train_ccr, test_ccr
 
 
+##### Documentacion #####
+# pandas.read_csv : https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
+# pandas.DataFrame.iloc : https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html
 def read_data(train_file, test_file, outputs):
     """ Read the input data
         It receives the name of the input data file names (training and test)
@@ -242,8 +260,20 @@ def read_data(train_file, test_file, outputs):
     """
 
     #TODO: Complete the code of the function
+    matriz_train=pd.read_csv(train_file) # Se vuelcan los datos en un dataframe
+    matriz_test=pd.read_csv(test_file)
+
+    train_inputs = matriz_train.iloc[:,0:-outputs] # Tomamos las primeras columnas como entradas
+    train_outputs = matriz_train.iloc[:,-outputs:] # Tomamos las ultimas columnas como salida
+
+    test_inputs = matriz_test.iloc[:,0:-outputs] # Lo mismo para los datos de test
+    test_outputs = matriz_test.iloc[:,-outputs:]
+
     return train_inputs, train_outputs, test_inputs, test_outputs
 
+
+##### Documentacion #####
+# sklearn train_test_split : https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
 def init_centroids_classification(train_inputs, train_outputs, num_rbf):
     """ Initialize the centroids for the case of classification
         This method selects in a stratified num_rbf patterns.
@@ -264,8 +294,15 @@ def init_centroids_classification(train_inputs, train_outputs, num_rbf):
     """
     
     #TODO: Complete the code of the function
-    return centroids
+    # Generamos patrones estratificados de forma aleatoria segun las clases indicadas en las salidas, tanto para los inputs como outputs
+    train_test_list = train_test_split(train_inputs, train_size=num_rbf, stratify=train_outputs, random_state=0)
+    # Tras esto, tendremos que tomar los resultados que nos interesen
+    centroids = train_test_list[0]
 
+    return centroids 
+
+##### Documentacion #####
+# sklearn.cluster.KMeans : https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
 def clustering(classification, train_inputs, train_outputs, num_rbf):
     """ It applies the clustering process
         A clustering process is applied to set the centers of the RBFs.
@@ -295,6 +332,19 @@ def clustering(classification, train_inputs, train_outputs, num_rbf):
     """
 
     #TODO: Complete the code of the function
+    if classification: 
+        # Centroides de forma aleatoria y estratificada
+        centroids = init_centroids_classification(train_inputs, train_outputs, num_rbf)
+        kmeans = KMeans(init=centroids ,n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
+
+    else:
+        kmeans = KMeans(init="random", random_state=0 ,n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
+    
+    centers = kmeans.cluster_centers_
+
+    distances = np.linalg.norm(train_inputs-kmeans.cluster_centers_)
+
+   
     return kmeans, distances, centers
 
 def calculate_radii(centers, num_rbf):
@@ -392,7 +442,6 @@ def logreg_classification(matriz_r, train_outputs, l2, eta):
     #TODO: Complete the code of the function
     return logreg
 
-
 def predict(test_file, model_file):
     """ Performs a prediction with RBFNN model
         It obtains the predictions of a RBFNN model for a test file, using two files, one
@@ -433,4 +482,9 @@ def predict(test_file, model_file):
     return test_predictions
 
 if __name__ == "__main__":
-    train_rbf_total()
+   # train_rbf_total()
+
+    train_inputs, train_outputs, test_inputs, test_outputs = read_data("./datasetsLA3IMC/csv/train_divorce.csv", "./datasetsLA3IMC/csv/train_divorce.csv", 1)
+  #  centroids = init_centroids_classification(train_inputs, train_outputs, 5)
+
+    clustering(True, train_inputs, train_outputs, 5)
