@@ -24,7 +24,7 @@ import numpy as np # Modulo numpy, da variables, estructuras y funciones matemá
 import pandas as pd # Modulo pandas, para manipulación y análisis de datos
 from sklearn.model_selection import train_test_split
 from sklearn.cluster import KMeans
-
+import scipy as sp
 
 @click.command() #"Decorator", perimte que la funcion tenga argumentos/opciones dadas por consola
 @click.option('--train_file', '-t', default=None, required=False, # Se indica las opciones, si tiene valor por defecto y si es obligatorio
@@ -176,16 +176,22 @@ def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs
     num_rbf = round(ratio_rbf*(len(train_inputs.index))) # Obtenemos el numero de patrones y multiplicamos por el ratio, despues redondeamos
     print("Number of RBFs used: %d" %(num_rbf))
 
+    # 1. Realizamos el clustering a traves de kmeans
     kmeans, distances, centers = clustering(classification, train_inputs, 
                                               train_outputs, num_rbf)
     
+    # 2. Ajuste de los radios RBF
     radii = calculate_radii(centers, num_rbf)
     
+    # 3. Arendizaje de los pesos
+    # Obtencion de la matriz de salidas de las neuronas RBF
     r_matrix = calculate_r_matrix(distances, radii)
 
     if not classification:
+        # Para el caso de regresion, se usa la matriz de Moore Penrose
         coefficients = invert_matrix_regression(r_matrix, train_outputs)
     else:
+        # Modelo de regresion logistica, basado en probabilidades
         logreg = logreg_classification(r_matrix, train_outputs, l2, eta)
 
     """
@@ -335,18 +341,24 @@ def clustering(classification, train_inputs, train_outputs, num_rbf):
     if classification: 
         # Centroides de forma aleatoria y estratificada
         centroids = init_centroids_classification(train_inputs, train_outputs, num_rbf)
+        # Realizamos el algoritmo usando los centroides anteriores y los patrones de entranmiento
         kmeans = KMeans(init=centroids ,n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
 
     else:
+        # Realizamos lo mismo pero tomando centros de forma aleatoria
         kmeans = KMeans(init="random", random_state=0 ,n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
     
+    # Gracias al metodo .fit hemos podido obtener los centros, ahora simplemente accedemos a ellos
     centers = kmeans.cluster_centers_
+    
+    # El metodo .transform permite obtener las distancias de los patrones con los centros
+    distances = kmeans.transform(train_inputs)
 
-    distances = np.linalg.norm(train_inputs-kmeans.cluster_centers_)
-
-   
     return kmeans, distances, centers
 
+##### Documentacion #####
+# scipy.spatial.distance.pdist : https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html
+# scipy.spatial.distance.squareform : https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.squareform.html
 def calculate_radii(centers, num_rbf):
     """ It obtains the value of the radii after clustering
         This methods is used to heuristically obtain the radii of the RBFs
@@ -366,8 +378,22 @@ def calculate_radii(centers, num_rbf):
     """
 
     #TODO: Complete the code of the function
+
+    # Esta es la parte de la raiz cuadrada de la sumatoria de las diferencias al cuadrado
+    # Hay tantas como neuronas RBF    
+    dist = sp.spatial.distance.squareform(sp.spatial.distance.pdist(centers))
+
+    # Ahora para cada una de las sumatorias anteriores, dividimos las mismas por 2·n-1
+    radii = []
+    for i in range(0, num_rbf):
+        radii.append([sum(dist[i])/(2*(num_rbf-1))])
+
     return radii
 
+##### Documentacion #####
+# numpy.ndarray.shape : https://numpy.org/doc/stable/reference/generated/numpy.ndarray.shape.html
+# numpy.hstack : https://numpy.org/doc/stable/reference/generated/numpy.hstack.html
+# numpy.ones : https://numpy.org/doc/stable/reference/generated/numpy.ones.html
 def calculate_r_matrix(distances, radii):
     """ It obtains the R matrix
         This method obtains the R matrix (as explained in the slides),
@@ -389,8 +415,22 @@ def calculate_r_matrix(distances, radii):
     """
 
     #TODO: Complete the code of the function
+    # En distances, tendremos en cada columna cada una de las neuronas y para cada fila, todas las distancias de los patrones para esa neurona con
+    # el centro de la misma
+    r_matrix = np.power(distances, 2) # Elevamos al cuadrado las distancias
+
+    for i in range(r_matrix.shape[1]): # El numero de columnas son el numero de neuronas RBF que tenemos
+        # Donde [:, i] toma todas las filas de la fila i, osea, todas las salidas para cada neurona 
+        r_matrix[:, i] = np.exp(-1*r_matrix[:, i] / (2 * np.power(radii[i], 2))) # Tomamos para cada columna, su radio correspondiente (radii[i])
+
+    # Finalmente añadimos la columna de unos que actua como sesgo
+    r_matrix = np.hstack((r_matrix, np.ones((r_matrix.shape[0], 1))))
+
     return r_matrix
 
+##### Documentacion #####
+# numpy.linalg.pinv : https://numpy.org/doc/stable/reference/generated/numpy.linalg.pinv.html
+# numpy.matmul : https://numpy.org/doc/stable/reference/generated/numpy.matmul.html 
 def invert_matrix_regression(r_matrix, train_outputs):
     """ Inversion of the matrix for regression case
         This method obtains the pseudoinverse of the r matrix and multiplies
@@ -413,8 +453,15 @@ def invert_matrix_regression(r_matrix, train_outputs):
     """
 
     #TODO: Complete the code of the function
+    # La obtencion de la pseudo-inversa se puede obtener con una funcion de la libreria Numpy
+    penroseMatrix = np.linalg.pinv(r_matrix)
+    # Ahora solo queda multiplicar ambas matrices y el resultado seran los coeficientes
+    coefficients = np.matmul(penroseMatrix, train_outputs)
+
     return coefficients
 
+##### Documentacion #####
+#
 def logreg_classification(matriz_r, train_outputs, l2, eta):
     """ Performs logistic regression training for the classification case
         It trains a logistic regression object to perform classification based
@@ -485,6 +532,8 @@ if __name__ == "__main__":
    # train_rbf_total()
 
     train_inputs, train_outputs, test_inputs, test_outputs = read_data("./datasetsLA3IMC/csv/train_divorce.csv", "./datasetsLA3IMC/csv/train_divorce.csv", 1)
-  #  centroids = init_centroids_classification(train_inputs, train_outputs, 5)
+    centroids = init_centroids_classification(train_inputs, train_outputs, 5)
 
-    clustering(True, train_inputs, train_outputs, 5)
+    kmeans, distances, centers = clustering(True, train_inputs, train_outputs, 5)
+    radii = calculate_radii(centers, 5)
+    r_matrix = calculate_r_matrix(distances, radii)
