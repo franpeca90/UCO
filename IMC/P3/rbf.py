@@ -13,8 +13,6 @@ IMC: lab assignment 3
 
 #########################
 
-
-
 # TODO Include all neccesary imports
 import pickle # Módulo de python que permite representar objetos en cadenas de bytes. Permite almacenamiento en ficheros o BBDD
 import os # Módulo que permite acceder a rutinas o funciones relacionadas con el sistema operativo, sobre todo para lectura y escritura de ficheros
@@ -22,9 +20,13 @@ import click # Módulo para la creacion de interfaces en líneas de comandos.
 
 import numpy as np # Modulo numpy, da variables, estructuras y funciones matemáticas
 import pandas as pd # Modulo pandas, para manipulación y análisis de datos
-from sklearn.model_selection import train_test_split
+import scipy as sp # Modulo scipy, permite realizar algoritmos matematicos
+from sklearn.model_selection import train_test_split # Sklearn, para algoritmos y metodos relacionados con el aprendizaje automatico
+import sklearn.linear_model 
 from sklearn.cluster import KMeans
-import scipy as sp
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import mean_squared_error
+
 
 @click.command() #"Decorator", perimte que la funcion tenga argumentos/opciones dadas por consola
 @click.option('--train_file', '-t', default=None, required=False, # Se indica las opciones, si tiene valor por defecto y si es obligatorio
@@ -81,14 +83,16 @@ def train_rbf_total(train_file, test_file, classification, ratio_rbf, l2, eta, o
             print("Seed: %d" % s)
             print("-----------")     
             np.random.seed(s) # Generación de la semilla
+            # Llamada a la funcion principal para el entrenamiento de la red
             train_mses[s-1], test_mses[s-1], train_ccrs[s-1], test_ccrs[s-1] = \
                 train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs, \
-                             model and "{}/{}.pickle".format(model, s) or "") 
+                             model and "{}/{}.pickle".format(model, s) or "")
+            # Se muestran las variables obntenidas 
             print("Training MSE: %f" % train_mses[s-1])
             print("Test MSE: %f" % test_mses[s-1])
             print("Training CCR: %.2f%%" % train_ccrs[s-1])
             print("Test CCR: %.2f%%" % test_ccrs[s-1])
-        
+        # Se muestran resultados estadisticos de la red
         print("******************")
         print("Summary of results")
         print("******************")
@@ -120,8 +124,9 @@ def train_rbf_total(train_file, test_file, classification, ratio_rbf, l2, eta, o
                 
             print(s)
             
-
-
+##### Documentacion #####
+# sklearn.metrics.mean_squared_error : https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html
+# sklearn.preprocessing.OneHotEncoder : https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html
 def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs, model_file=""):
     """ One execution of RBFNN training
     
@@ -191,13 +196,16 @@ def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs
         # Para el caso de regresion, se usa la matriz de Moore Penrose
         coefficients = invert_matrix_regression(r_matrix, train_outputs)
     else:
-        # Modelo de regresion logistica, basado en probabilidades
+        # Modelo de regresion logistica
         logreg = logreg_classification(r_matrix, train_outputs, l2, eta)
 
     """
     TODO: Obtain the distances from the centroids to the test patterns
           and obtain the R matrix for the test set
     """
+    # Como se ha visto en la funcion de obtencion de KMeans, con .transform puedo obtener las distancias con los centros de los patrones de test
+    # Los radios son los mismos en ambas matrices
+    r_matrix_test = calculate_r_matrix(kmeans.transform(test_inputs), radii)
 
     # # # # KAGGLE # # # #
     if model_file != "":
@@ -225,15 +233,36 @@ def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs
         TODO: Obtain the predictions for training and test and calculate
               the MSE
         """
+         # Multiplicamos cada matriz por los coeficientes, obteniendo las salidas
+        out_prediction_train = np.matmul(r_matrix, coefficients)
+        out_prediction_test = np.matmul(r_matrix_test, coefficients)
+        # Calculamos el error cuadratico medio (MSE)
+        train_mse = mean_squared_error(out_prediction_train, train_outputs)
+        test_mse = mean_squared_error(out_prediction_test, test_outputs)
+
+        # En regresion no calculamos los CCR
+        train_ccr = 0
+        test_ccr = 0
+
     else:
         """
         TODO: Obtain the predictions for training and test and calculate
               the CCR. Obtain also the MSE, but comparing the obtained
               probabilities and the target probabilities
         """
+        # Clase que permite representar los datos categoricos en formato de array con 0 y 1
+        encoder = OneHotEncoder()
+        train_encoder = encoder.fit_transform(train_outputs).toarray() # Lo pasamos en formato array
+        test_encoder = encoder.fit_transform(test_outputs).toarray()
+
+        # Calculo del CCR mediante el metodo score (Hace un predict de forma interna)
+        train_ccr = logreg.score(r_matrix, train_outputs.values) * 100
+        test_ccr = logreg.score(r_matrix_test, test_outputs.values) * 100
+
+        train_mse = mean_squared_error(train_encoder, logreg.predict_proba(r_matrix))
+        test_mse = mean_squared_error(test_encoder, logreg.predict_proba(r_matrix_test))
 
     return train_mse, test_mse, train_ccr, test_ccr
-
 
 ##### Documentacion #####
 # pandas.read_csv : https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
@@ -266,8 +295,8 @@ def read_data(train_file, test_file, outputs):
     """
 
     #TODO: Complete the code of the function
-    matriz_train=pd.read_csv(train_file) # Se vuelcan los datos en un dataframe
-    matriz_test=pd.read_csv(test_file)
+    matriz_train = pd.read_csv(train_file, header=None) # Se vuelcan los datos en un dataframe
+    matriz_test = pd.read_csv(test_file, header=None)
 
     train_inputs = matriz_train.iloc[:,0:-outputs] # Tomamos las primeras columnas como entradas
     train_outputs = matriz_train.iloc[:,-outputs:] # Tomamos las ultimas columnas como salida
@@ -276,7 +305,6 @@ def read_data(train_file, test_file, outputs):
     test_outputs = matriz_test.iloc[:,-outputs:]
 
     return train_inputs, train_outputs, test_inputs, test_outputs
-
 
 ##### Documentacion #####
 # sklearn train_test_split : https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
@@ -301,7 +329,7 @@ def init_centroids_classification(train_inputs, train_outputs, num_rbf):
     
     #TODO: Complete the code of the function
     # Generamos patrones estratificados de forma aleatoria segun las clases indicadas en las salidas, tanto para los inputs como outputs
-    train_test_list = train_test_split(train_inputs, train_size=num_rbf, stratify=train_outputs, random_state=0)
+    train_test_list = train_test_split(train_inputs, train_size=num_rbf, stratify=train_outputs, random_state=None)
     # Tras esto, tendremos que tomar los resultados que nos interesen
     centroids = train_test_list[0]
 
@@ -456,12 +484,12 @@ def invert_matrix_regression(r_matrix, train_outputs):
     # La obtencion de la pseudo-inversa se puede obtener con una funcion de la libreria Numpy
     penroseMatrix = np.linalg.pinv(r_matrix)
     # Ahora solo queda multiplicar ambas matrices y el resultado seran los coeficientes
-    coefficients = np.matmul(penroseMatrix, train_outputs)
+    coefficients = np.matmul(penroseMatrix, train_outputs.values)
 
     return coefficients
 
 ##### Documentacion #####
-#
+# sklearn.linear_model.LogisticRegression : https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
 def logreg_classification(matriz_r, train_outputs, l2, eta):
     """ Performs logistic regression training for the classification case
         It trains a logistic regression object to perform classification based
@@ -487,6 +515,16 @@ def logreg_classification(matriz_r, train_outputs, l2, eta):
     """
 
     #TODO: Complete the code of the function
+    # Tenemos el caso en el que aplicamos L2 y el caso en el que aplicamos L1
+    # Creamos la clase con los valores correspondientes
+    if l2:
+        logreg = sklearn.linear_model.LogisticRegression(penalty='l2', C=(1/eta), solver='liblinear')
+    else:
+        logreg = sklearn.linear_model.LogisticRegression(penalty='l1', C=(1/eta), solver='liblinear')
+
+    # Ajustamos segun los datos de entrenamiento. Indicamos los patrones y las salidas acordes a estos patrones
+    logreg.fit(matriz_r, train_outputs.values.ravel()) # El .ravel() es necesario para transformar la columna de salidas en formato de fila
+
     return logreg
 
 def predict(test_file, model_file):
@@ -529,11 +567,4 @@ def predict(test_file, model_file):
     return test_predictions
 
 if __name__ == "__main__":
-   # train_rbf_total()
-
-    train_inputs, train_outputs, test_inputs, test_outputs = read_data("./datasetsLA3IMC/csv/train_divorce.csv", "./datasetsLA3IMC/csv/train_divorce.csv", 1)
-    centroids = init_centroids_classification(train_inputs, train_outputs, 5)
-
-    kmeans, distances, centers = clustering(True, train_inputs, train_outputs, 5)
-    radii = calculate_radii(centers, 5)
-    r_matrix = calculate_r_matrix(distances, radii)
+    train_rbf_total()
