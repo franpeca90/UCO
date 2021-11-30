@@ -28,6 +28,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import mean_squared_error
 
 
+
+
 @click.command() #"Decorator", perimte que la funcion tenga argumentos/opciones dadas por consola
 @click.option('--train_file', '-t', default=None, required=False, # Se indica las opciones, si tiene valor por defecto y si es obligatorio
               help=u'Name of the file with training data.') # Información en caso de que se muestre la ayuda por consola
@@ -70,7 +72,7 @@ def train_rbf_total(train_file, test_file, classification, ratio_rbf, l2, eta, o
             test_file = train_file
 
         if eta is None: # Valor por defecto de parametro eta
-            eta = 0,1
+            eta = 0.01
 
         # np.empty da vectores vacíos del tamaño indicado
         train_mses = np.empty(5) # Error de tipo MSE y el porcentaje de patrones bien clasificados (CCR) para el conjunto de entrenamiento
@@ -78,24 +80,22 @@ def train_rbf_total(train_file, test_file, classification, ratio_rbf, l2, eta, o
         test_mses = np.empty(5) # Lo mismo pero para el conjunto de test
         test_ccrs = np.empty(5)
     
-        for s in range(1,6,1): # Va del 1 al 5 de uno en uno   
+        for s in range(1,6,1):
             print("-----------")
             print("Seed: %d" % s)
-            print("-----------")     
-            np.random.seed(s) # Generación de la semilla
-            # Llamada a la funcion principal para el entrenamiento de la red
+            print("-----------")
+            np.random.seed(s)
             train_mses[s-1], test_mses[s-1], train_ccrs[s-1], test_ccrs[s-1] = \
                 train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs, \
                              model and "{}/{}.pickle".format(model, s) or "")
-            # Se muestran las variables obntenidas 
             print("Training MSE: %f" % train_mses[s-1])
             print("Test MSE: %f" % test_mses[s-1])
             print("Training CCR: %.2f%%" % train_ccrs[s-1])
             print("Test CCR: %.2f%%" % test_ccrs[s-1])
-        # Se muestran resultados estadisticos de la red
-        print("******************")
+
+        print(" ******************")
         print("Summary of results")
-        print("******************")
+        print(" ******************")
         print("Training MSE: %f +- %f" % (np.mean(train_mses), np.std(train_mses)))
         print("Test MSE: %f +- %f" % (np.mean(test_mses), np.std(test_mses)))
         print("Training CCR: %.2f%% +- %.2f%%" % (np.mean(train_ccrs), np.std(train_ccrs)))
@@ -184,7 +184,7 @@ def train_rbf(train_file, test_file, classification, ratio_rbf, l2, eta, outputs
     # 1. Realizamos el clustering a traves de kmeans
     kmeans, distances, centers = clustering(classification, train_inputs, 
                                               train_outputs, num_rbf)
-    
+
     # 2. Ajuste de los radios RBF
     radii = calculate_radii(centers, num_rbf)
     
@@ -370,12 +370,12 @@ def clustering(classification, train_inputs, train_outputs, num_rbf):
         # Centroides de forma aleatoria y estratificada
         centroids = init_centroids_classification(train_inputs, train_outputs, num_rbf)
         # Realizamos el algoritmo usando los centroides anteriores y los patrones de entranmiento
-        kmeans = KMeans(init=centroids ,n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
-
+        kmeans = KMeans(init=centroids, n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
+        #kmeans = KMeans(init="k-means++", n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
     else:
         # Realizamos lo mismo pero tomando centros de forma aleatoria
-        kmeans = KMeans(init="random", random_state=0 ,n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
-    
+        kmeans = KMeans(init="random", n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
+        #kmeans = KMeans(init="k-means++", n_clusters=num_rbf, n_init=1, max_iter=500).fit(train_inputs)
     # Gracias al metodo .fit hemos podido obtener los centros, ahora simplemente accedemos a ellos
     centers = kmeans.cluster_centers_
     
