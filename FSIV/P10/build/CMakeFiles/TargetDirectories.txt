@@ -1,0 +1,4 @@
+/home/fran/Escritorio/Universidad/FSIV/P10/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P10/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/P10/build/CMakeFiles/test_image.dir
+/home/fran/Escritorio/Universidad/FSIV/P10/build/CMakeFiles/train_val.dir
