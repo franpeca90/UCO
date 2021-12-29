@@ -34,6 +34,9 @@ fsiv_normalize_mean_var(cv::Mat const& src)
     // its var equal to 1.0.
     // Hint: use cv::meanStdDev() to get the source mean and stdev.
 
+    sdt:vector <double> mean, stdev;
+    cv::normalize(src, dst, 0.0, 1.0, cv::NORM_MINMAX);
+    cv::meanStdDev(dst, mean, stdev); // We get the mean and standar derivation of our image
 
     //
 #ifndef NDEBUG
@@ -57,7 +60,8 @@ fsiv_normalize_minmax(cv::Mat const& src)
     // maximun value be 1.0
     // Hint: use cv::normalize()
 
-
+    src.converTo(dst, CV_32FC1); // One channel image
+    cv::normalize(dst, dst, 0.0, 1.1, cv::NORM_MINMAX); // Nomralization
 
     //
 
@@ -296,7 +300,8 @@ fsiv_compute_desc_from_list(const std::vector<std::string> & lfiles,
                 fsiv_desc_simple_gray(canonical_img, vimg_mat);
             } else { 
                 // The other type of descriptor is LBP
-                
+                cv::Mat lbp;
+                fsiv_lbp(canonical_img, lbp)
             }
 
             if (i==0)
@@ -338,4 +343,46 @@ compute_file_size(std::string const& fname, const long units)
         size = static_cast<float>(length) / static_cast<float>(units);
     }
     return size;
+}
+
+void
+fsiv_lbp(const cv::Mat& img, cv::Mat& lbp){
+    
+    // Documentation: https://www.bytefish.de/blog/local_binary_patterns.html
+    lbp = cv::Mat::zeros(img.rows, img.cols, CV_8UC1); // We fill the image with zeros
+
+    for (auto i = 1; i < img.rows - 1; i++){
+		for (auto j = 1; j < img.cols - 1; j++){
+			
+            float center = img.at<float>(i, j); // We take our central pixel
+			uchar code = 0;
+
+			code |= ( img.at<float>(i, j - 1) > center ) << 7; // We compare the pixels
+			code |= ( img.at<float>(i + 1, j - 1) > center ) << 6;
+			code |= ( img.at<float>(i + 1, j) > center ) << 5;
+			code |= ( img.at<float>(i + 1, j + 1) > center ) << 4;
+			code |= ( img.at<float>(i, j + 1) > center ) << 3;
+			code |= ( img.at<float>(i - 1, j + 1) > center ) << 2;
+			code |= ( img.at<float>(i - 1, j) > center ) << 1;
+			code |= ( img.at<float>(i - 1, j - 1) > center ) << 0;
+
+			lbp.at<uchar>(i, j - 1) = code;
+		}
+	}
+}
+
+void
+fsiv_lbp_hist(const cv::Mat & lbp, cv::Mat & lbp_hist, const bool hist_norm){
+
+	float hranges[] = {0, 256};
+	const float* phranges = hranges;   
+    calcHist(&lbp, 1, 0, cv::Mat(), lbp_hist, 1, &histSize, &phranges, true, false);
+
+    cv::transpose(lbp_hist, lbp_hist);
+
+    if (normalize){
+		cv::normalize(lbp_hist, lbp_hist, 1.0, 0.0, cv::NORM_L1);
+	}
+
+    lbp_hist.convertTo(lbp_hist, CV_32FC1);
 }
