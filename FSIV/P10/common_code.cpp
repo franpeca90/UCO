@@ -301,7 +301,8 @@ fsiv_compute_desc_from_list(const std::vector<std::string> & lfiles,
             } else { 
                 // The other type of descriptor is LBP
                 cv::Mat lbp;
-                fsiv_lbp(canonical_img, lbp)
+                fsiv_lbp(canonical_img, lbp);
+                fsiv_lbp_hist(lbp, vimg_mat, hist_norm);
             }
 
             if (i==0)
@@ -348,7 +349,7 @@ compute_file_size(std::string const& fname, const long units)
 void
 fsiv_lbp(const cv::Mat& img, cv::Mat& lbp){
     
-    // Documentation: https://www.bytefish.de/blog/local_binary_patterns.html
+    // · Documentation: https://www.bytefish.de/blog/local_binary_patterns.html
     lbp = cv::Mat::zeros(img.rows, img.cols, CV_8UC1); // We fill the image with zeros
 
     for (auto i = 1; i < img.rows - 1; i++){

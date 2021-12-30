@@ -128,4 +128,9 @@ bool fsiv_compute_desc_from_list(const std::vector<std::string> & lfiles,
 float compute_file_size(const std::string &fname, const long units=1);
 
 
+void fsiv_lbp(const cv::Mat& img, cv::Mat& lbp);
+
+
+void fsiv_lbp_hist(const cv::Mat & lbp, cv::Mat & lbp_hist, const bool hist_norm);
+
 #endif //__COMMON_CODE_HPP__

@@ -85,15 +85,15 @@ main (int argc, char* const* argv)
       cv::Ptr<cv::ml::StatModel> clsf;
       if (classifier==0)
           //TODO: Load a KNearest model.
-          ;
+		  clsf = cv::ml::KNearest::load(model_fname);
           //
       else if (classifier==1)
           //TODO: Load a SVM model.
-          ;
+		  clsf = cv::ml::SVM::load(model_fname);
           //
       else if (classifier==1)
           //TODO: Load a RTrees model.
-          ;
+		  clsf = cv::ml::RTrees::load(model_fname);
           //
       else
       {
@@ -114,13 +114,13 @@ main (int argc, char* const* argv)
         {
             cv::Mat roi_img_color, roi_img;
             //TODO: Get the ROI and convert to gray
-            
+            cv::cvtColor(input_img(roi), roi_img, cv::COLOR_BGR2GRAY);
             //
             assert(!roi_img.empty() && roi_img.type()==CV_8UC1);
             if (img_norm == 0)
             {
                 //TODO: convert ROI to range to [0, 1]
-                
+                roi_img.convertTo(roi_img, CV_32FC1, 1.0 / 255, 0);
                 //
 #ifndef NDEBUG
                 {
@@ -145,14 +145,21 @@ main (int argc, char* const* argv)
             cv::Mat canonical_img, img_desc;
             cv::resize(roi_img, canonical_img, canonical_size);
             cv::Mat vimg_mat;
+            bool hist_norm = false; //Check if asking by prompt or as option
 
             // TODO: select the descriptor depending on the command-line call
-            fsiv_desc_simple_gray(canonical_img, img_desc);
-
+            if(desc == 0){
+                fsiv_desc_simple_gray(canonical_img, img_desc);
+            } else { 
+                // The other type of descriptor is LBP
+                cv::Mat lbp;
+                fsiv_lbp(canonical_img, lbp);
+                fsiv_lbp_hist(lbp, img_desc, hist_norm);
+            }
             cv::Mat y_pred;
 
             //TODO: get the classifier prediction.
-            
+            clsf->predict(img_desc, y_pred);
             //
             assert(!y_pred.empty() && y_pred.rows==1);
 

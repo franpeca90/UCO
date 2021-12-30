@@ -225,50 +225,76 @@ main (int argc, char* const* argv)
               std::cerr << "Computed testing features." << std::endl;
       }
 
-      cv::Ptr<cv::ml::StatModel> clsf;
+      cv::Ptr<cv::ml::StatModel> clsf; // Our model, can be created or loaded from file
       int train_flags = 0;
 
       // If validation and train features are loaded we create our models 
       if (validate) // Here we create the models with their hyperparameters, we are not training with train datasets
       {
-          if (classifier == 0)
+          if (classifier == 0) // Knn classifier
           {
-              //cv::Ptr<cv::ml::KNearest> knn;
-
               //TODO: Create an KNN classifier.
               //Set algorithm type to BRUTE_FORCE.
               //Set it as a classifier (setIsClassifier)
               //Set hyperparameter K.
 
+              // · Documentation: https://docs.opencv.org/4.x/dd/de1/classcv_1_1ml_1_1KNearest.html
 
-              //
+              // Creation of the model
+              cv::Ptr<cv::ml::KNearest> knn;
+              knn = cv::ml::KNearest::create();	
+
+              // Setting of BRUTE_FORCE, as classifier and hyperparameter K
+              knn -> setAlgorithmType(cv::ml::KNearest::BRUTE_FORCE);
+              knn->setIsClassifier(true);
+              // K means the k closest patterns
+              knn->setDefaultK(knn_K);
+
               assert(knn != nullptr);
               clsf = knn;
-          } else if (classifier == 1)
+          } else if (classifier == 1) // Support Vector Machine
           {
-              cv::Ptr<cv::ml::SVM> svm;
-
               //TODO: Create an SVM classifier.
               //Set algorithm type to C_SVC.
               //Set it as a classifier (setIsClassifier)
               //Set hyperparameters: C, kernel, Gamma, Degree.
+              
+              // · Documentation: https://docs.opencv.org/3.4/d1/d2d/classcv_1_1ml_1_1SVM.html
 
+              // Creation of the SVM
+              cv::Ptr<cv::ml::SVM> svm;
+              svm = cv::ml::SVM::create();
 
+              // Setting as classifier
+              svm->setType(cv::ml::SVM::C_SVC);
 
+              // Setting hyperparameters
+              svm->setC(svm_C);
+              svm->setKernel(svm_K);
+              svm->setGamma(svm_G);
+              svm->setDegree(svm_D);
               //
               assert(svm!=nullptr);
               clsf = svm;
           }
           else if (classifier == 2)
           {
-              cv::Ptr<cv::ml::RTrees> rtrees;
               //TODO: Create an RTrees classifier.
               //Set hyperparameters: Number of features used per node (ActiveVarCount).
               //Remenber that rtrees_V=0 means to use the default value.
               //Set the max num of trees rtrees_T, and required OOB error rtrees_E
               //using a cv::TermCriteria object.
 
+              // · Documentation: https://docs.opencv.org/4.x/d0/d65/classcv_1_1ml_1_1RTrees.html
+              
+              cv::Ptr<cv::ml::RTrees> rtrees;
+              rtrees->cv::ml::RTrees::create();
 
+              // Setting hyperparameter
+              rtrees->setActiveVarCount(rtrees_V);
+
+              // Setting max number of trees
+              rtrees->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, rtrees_T, rtrees_E));
               //
               assert(rtrees!=nullptr);
               clsf = rtrees;
@@ -281,18 +307,18 @@ main (int argc, char* const* argv)
       }
       else // If not, we just load a classifier
       {
-          train_flags = cv::ml::StatModel::UPDATE_MODEL;
+          train_flags = cv::ml::StatModel::UPDATE_MODEL; //Each type of classifier has a method to load a model from file
           if (classifier==0)
               //TODO: load a KNN classifier.
-              ;
+              clsf = cv::ml::KNearest::load(model_fname);
               //
           else if (classifier==1)
               //TODO: load a SVM classifier.
-              ;
+              clsf = cv::ml::SVM::load(model_fname);
               //
           else if (classifier==2)
               //TODO: load a RTrees classifier.
-              ;
+              clsf = cv::ml::RTrees::load(model_fname);
               //
           else
           {
@@ -305,7 +331,7 @@ main (int argc, char* const* argv)
               return EXIT_FAILURE;
           }
       }
-      if (!only_testing) // If we want to train, then we train
+      if (!only_testing) // Training part
       {
           std::cout << "Training with "<< train_labels.rows << " samples ... ";
 
@@ -314,8 +340,10 @@ main (int argc, char* const* argv)
                                             train_labels);
 
           //TODO: train the classifer using training data.        
-          
-
+         
+          // All the models have the same method to train, so we dont need to create 'ifs' for each one
+          clsf->train(train_data);
+         
           //
           assert(clsf->isTrained());
           std::cout << "done." << std::endl;
@@ -327,11 +355,13 @@ main (int argc, char* const* argv)
           std::cerr << "Testing with ";
       std::cout << val_labels.rows << " samples ... ";
 
-      cv::Mat predict_labels;
+      cv::Mat predict_labels; // This is where the predicted data is going to be stored
       std::cout << "done." << std::endl;
 
       //TODO: make the predictions over the validation/test data.
 
+      // As said before, only on method is needed
+      clsf->predict(val_descs, predict_labels)
 
       //
       assert(!predict_labels.empty() && predict_labels.rows == val_descs.rows);
