@@ -22,14 +22,14 @@ compute_confusion_matrix(const cv::Mat& true_labels,
     double max_true_label=0.0;
 
     //TODO: First find the max class label used in true_labels
-
+    cv::minMaxLoc(true_labels, NULL, &max_true_label, NULL, NULL);
     //    
     const int n_categories = static_cast<int>(max_true_label)+1;
     assert(n_categories>1);
 
     //TODO: create a square matrix with zeros for n_categories.
     //
-
+    cmat = cv::Mat::zeros(n_categories, n_categories, CV_32FC1);
     //
     assert(!cmat.empty() && cmat.type()==CV_32FC1
            && cmat.rows==n_categories && cmat.rows==cmat.cols);
@@ -38,8 +38,9 @@ compute_confusion_matrix(const cv::Mat& true_labels,
     //TODO: Compute the confussion matrix given the ground truth (true_labels)
     // and the predictions (predicted_labels).
     //Remember: Rows are the Ground Truth. Cols are the predictions.
-    
-
+    for (auto i = 0; i < predicted_labels.rows; i++){
+        cmat.at<float>(true_labels.at<float>(i, 0), predicted_labels.at<float>(i, 0)) = cmat.at<float>(true_labels.at<float>(i, 0), predicted_labels.at<float>(i, 0)) + 1;
+    }
     //
     assert(std::abs(cv::sum(cmat)[0]-static_cast<double>(true_labels.rows)) <=
             1.0e-6);
@@ -57,7 +58,9 @@ compute_recognition_rate(const cv::Mat& cmat, int category)
     //TODO: compute the recognition rate (RR) for the category.
     //Hint: try to avoid any loop. Use Opencv mat methods and functions.
     //Remember to avoid dividing by zero.
-
+    if (cv::sum( cmat.col(category) )[0] != 0.0){
+		RR = cmat.at<float>(category, category) / cv::sum( cmat.col(category) )[0];
+    }
     //
     assert(!std::isnan(RR) && RR>=0.0f && RR<=1.0f);
     return RR;
@@ -100,6 +103,21 @@ compute_accuracy(const cv::Mat& cmat,
 
     //TODO: compute the accurracy only for the categories given.
     //Remember to avoid dividing by zero.
+
+    float true_positives_and_negatives = 0.0;
+	float falses_positives_and_negatives = 0.0;
+
+	if(!categories.empty()){
+		for (auto i = 0; i < categories.size(); i++){
+			true_positives_and_negatives = true_positives_and_negatives + cmat.at<float>(categories[i], categories[i]);
+			falses_positives_and_negatives = falses_positives_and_negatives + cv::sum(cmat.col(categories[i]))[0];
+		}
+
+		acc = true_positives_and_negatives / true_positives_and_negatives + falses_positives_and_negatives;
+
+	} else { // Zero case
+		acc = cv::sum(cmat.diag(0))[0] / cv::sum(cmat)[0];
+	}
 
     //
     assert(!std::isnan(acc) && acc >0.0f && acc <= 1.0f);

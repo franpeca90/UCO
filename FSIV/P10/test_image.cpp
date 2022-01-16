@@ -120,7 +120,8 @@ main (int argc, char* const* argv)
             if (img_norm == 0)
             {
                 //TODO: convert ROI to range to [0, 1]
-                roi_img.convertTo(roi_img, CV_32FC1, 1.0 / 255, 0);
+                cv::normalize(roi_img, roi_img, 0, 1, cv::NORM_MINMAX);
+				roi_img.convertTo(roi_img, CV_32FC1);
                 //
 #ifndef NDEBUG
                 {
@@ -148,7 +149,7 @@ main (int argc, char* const* argv)
             bool hist_norm = false; //Check if asking by prompt or as option
 
             // TODO: select the descriptor depending on the command-line call
-            if(desc == 0){
+            if(desctype == 0){
                 fsiv_desc_simple_gray(canonical_img, img_desc);
             } else { 
                 // The other type of descriptor is LBP

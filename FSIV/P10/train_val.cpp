@@ -30,7 +30,7 @@ const cv::String keys =
     "{class        |0     | Classifier to train/test. 0: K-NN, 1:SVM, 2:RTREES.}"
     "{d desc       |0     | Descriptor type. 0: gray, 1: ???}"
     "{knn_K        |1     | Parameter K for K-NN class.}"
-    "{svm_C        |1.0   | Parámeter C for SVM class.}"
+    "{svm_C        |1.0   | Parameter C for SVM class.}"
     "{svm_K        |0     | Kernel to use with SVM class. 0:Linear, 1:Polinomial. "
     "2:RBF, 3:SIGMOID, 4:CHI2, 5:INTER}"
     "{svm_D        |3.0   | Degree of svm polinomial kernel.}"
@@ -112,10 +112,9 @@ main (int argc, char* const* argv)
       for (size_t c=0;c<categories.size();++c)
           std::cout << '\'' << category_descs[c] << "' ";
       std::cout << std::endl;
-
       // In this "if" block, we load the train, test and validation data (if needed) and we calculate the features of them
       if (validate) //If option -v was introduced
-      {   
+      { 
           std::vector<std::string> train_images;
           std::vector<cv::Rect> train_rois;
 
@@ -125,8 +124,9 @@ main (int argc, char* const* argv)
               std::cerr << "Error: could not load training data." << std::endl;
               return EXIT_FAILURE;
           }
-          
+
           // We obtain the descriptors of train set
+          
           if(!fsiv_compute_desc_from_list(train_images, 
                                     train_rois, 
                                     canonical_size, 
@@ -142,8 +142,7 @@ main (int argc, char* const* argv)
           else
               std::cerr << "Computed training features." << std::endl;
 
-
-
+                std::cout<<"\njijijija jijijija jijijija jijijija jijijija jijijija jijijija \n"<<std::endl;
           std::vector<std::string> val_images;
           std::vector<cv::Rect> val_rois;
 
@@ -277,7 +276,7 @@ main (int argc, char* const* argv)
               assert(svm!=nullptr);
               clsf = svm;
           }
-          else if (classifier == 2)
+          else if (classifier == 2) // RTrees
           {
               //TODO: Create an RTrees classifier.
               //Set hyperparameters: Number of features used per node (ActiveVarCount).
@@ -361,7 +360,7 @@ main (int argc, char* const* argv)
       //TODO: make the predictions over the validation/test data.
 
       // As said before, only on method is needed
-      clsf->predict(val_descs, predict_labels)
+      clsf->predict(val_descs, predict_labels);
 
       //
       assert(!predict_labels.empty() && predict_labels.rows == val_descs.rows);

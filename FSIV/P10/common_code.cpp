@@ -34,7 +34,7 @@ fsiv_normalize_mean_var(cv::Mat const& src)
     // its var equal to 1.0.
     // Hint: use cv::meanStdDev() to get the source mean and stdev.
 
-    sdt:vector <double> mean, stdev;
+    std::vector <double> mean, stdev;
     cv::normalize(src, dst, 0.0, 1.0, cv::NORM_MINMAX);
     cv::meanStdDev(dst, mean, stdev); // We get the mean and standar derivation of our image
 
@@ -60,8 +60,8 @@ fsiv_normalize_minmax(cv::Mat const& src)
     // maximun value be 1.0
     // Hint: use cv::normalize()
 
-    src.converTo(dst, CV_32FC1); // One channel image
-    cv::normalize(dst, dst, 0.0, 1.1, cv::NORM_MINMAX); // Nomralization
+    src.convertTo(dst, CV_32FC1); // One channel image
+    cv::normalize(dst, dst, 0, 1, cv::NORM_MINMAX); // Nomralization
 
     //
 
@@ -243,21 +243,26 @@ bool fsiv_desc_simple_gray(const cv::Mat & image, cv::Mat & desc)
 {
     //TODO: compute the descriptor and save into desc
     // I assume that this descriptor is created by taking the pixels in grey-scale and putting them into a one dimension image
+    
     cv::Mat greyImg;
-    cv::cvtColor(image, greyImg, CV_BGR2GRAY); // Original image in grey-scale
-  
-    cv::Mat auxImg(cv::Size(1, greyImg.cols*greyImg.rows), CV_32F)
-    int i = 0
+    /*
+    cv::imshow("Imagen",image);
+    cv::waitKey(0);
+    cv::cvtColor(image, greyImg, cv::COLOR_BGR2GRAY); // Original image in grey-scale
+    */
+
+    cv::Mat auxImg(cv::Size(1, greyImg.cols*greyImg.rows), CV_32F);
+    int i = 0;
 
     for(int x=0 ; x < greyImg.rows ; x++){
         for(int y=0 ; y < greyImg.cols ; y++){
-            auxImg.at<uchar>(0,i) = greyImg.at<uchar>(x,y)
-            i++
+            auxImg.at<uchar>(0,i) = greyImg.at<uchar>(x,y);
+            i++;
         }
     }
 
     //Now we create our descriptor
-    auxImg.copyTo(desc)
+    auxImg.copyTo(desc);
 
     return true;
 }
@@ -296,8 +301,9 @@ fsiv_compute_desc_from_list(const std::vector<std::string> & lfiles,
 
             // TODO: compute the selected descriptor
             cv::Mat vimg_mat;
-            if (desctype == 0) {
+            if (desctype == 0) { // Simple grey descriptor
                 fsiv_desc_simple_gray(canonical_img, vimg_mat);
+      
             } else { 
                 // The other type of descriptor is LBP
                 cv::Mat lbp;
@@ -307,12 +313,15 @@ fsiv_compute_desc_from_list(const std::vector<std::string> & lfiles,
 
             if (i==0)
             {
+
                 l_descs = cv::Mat(lfiles.size(), vimg_mat.cols, CV_32FC1);
+                                std::cout<<"\njijijija jijijija jijijija jijijija jijijija jijijija jijijija \n"<<std::endl;
                 vimg_mat.copyTo(l_descs.row(0));
+                                
             }
             else
                 vimg_mat.copyTo(l_descs.row(i));
-                
+                                
 #ifndef NDEBUG
             if (__Debug_Level>=3)
             {
@@ -377,11 +386,13 @@ fsiv_lbp_hist(const cv::Mat & lbp, cv::Mat & lbp_hist, const bool hist_norm){
 
 	float hranges[] = {0, 256};
 	const float* phranges = hranges;   
-    calcHist(&lbp, 1, 0, cv::Mat(), lbp_hist, 1, &histSize, &phranges, true, false);
+    int histSize = 256;
+
+    cv::calcHist(&lbp, 1, 0, cv::Mat(), lbp_hist, 1, &histSize, &phranges, true, false);
 
     cv::transpose(lbp_hist, lbp_hist);
 
-    if (normalize){
+    if (hist_norm){
 		cv::normalize(lbp_hist, lbp_hist, 1.0, 0.0, cv::NORM_L1);
 	}
 
