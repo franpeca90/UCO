@@ -58,8 +58,8 @@ compute_recognition_rate(const cv::Mat& cmat, int category)
     //TODO: compute the recognition rate (RR) for the category.
     //Hint: try to avoid any loop. Use Opencv mat methods and functions.
     //Remember to avoid dividing by zero.
-    if (cv::sum( cmat.col(category) )[0] != 0.0){
-		RR = cmat.at<float>(category, category) / cv::sum( cmat.col(category) )[0];
+    if (cv::sum(cmat.col(category))[0] != 0.0){
+		RR = cmat.at<float>(category, category) / cv::sum(cmat.col(category))[0];
     }
     //
     assert(!std::isnan(RR) && RR>=0.0f && RR<=1.0f);
@@ -108,7 +108,7 @@ compute_accuracy(const cv::Mat& cmat,
 	float falses_positives_and_negatives = 0.0;
 
 	if(!categories.empty()){
-		for (auto i = 0; i < categories.size(); i++){
+		for (int i = 0; i < categories.size(); i++){
 			true_positives_and_negatives = true_positives_and_negatives + cmat.at<float>(categories[i], categories[i]);
 			falses_positives_and_negatives = falses_positives_and_negatives + cv::sum(cmat.col(categories[i]))[0];
 		}

@@ -1,0 +1,6 @@
+
+
+
+
+[ KNN ]
+    Train: ./train_val -img_norm=0 -v -class=0 -desc=1 -knn_K=3 -@dataset_path=../fsiv_gtscb/ -@model=../model/knn_1.xml

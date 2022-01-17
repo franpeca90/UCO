@@ -130,7 +130,8 @@ float compute_file_size(const std::string &fname, const long units=1);
 
 void fsiv_lbp(const cv::Mat& img, cv::Mat& lbp);
 
+void fsiv_desc_lbp(const cv::Mat& lbp, cv::Mat& desc, const int* ncells, const bool normalize);
 
-void fsiv_lbp_hist(const cv::Mat & lbp, cv::Mat & lbp_hist, const bool hist_norm);
+void fsiv_lbp_hist(const cv::Mat& lbp, cv::Mat & lbp_hist, const bool hist_norm);
 
 #endif //__COMMON_CODE_HPP__

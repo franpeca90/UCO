@@ -300,27 +300,32 @@ fsiv_compute_desc_from_list(const std::vector<std::string> & lfiles,
             cv::resize(image(rois[i]), canonical_img, canonical_size);            
 
             // TODO: compute the selected descriptor
-            cv::Mat vimg_mat;
+            cv::Mat aux_desc;
+
             if (desctype == 0) { // Simple grey descriptor
-                fsiv_desc_simple_gray(canonical_img, vimg_mat);
+                fsiv_desc_simple_gray(canonical_img, aux_desc);
       
             } else { 
                 // The other type of descriptor is LBP
                 cv::Mat lbp;
+                int ncells[2];
+                ncells[1]=5; //This values can change, we are going to use always 5x5
+                ncells[2]=5;
+
                 fsiv_lbp(canonical_img, lbp);
-                fsiv_lbp_hist(lbp, vimg_mat, hist_norm);
+ 
+                fsiv_desc_lbp(lbp, aux_desc, ncells, hist_norm);
             }
 
-            if (i==0)
+            if (i==0) // Finally, we add the descriptor into the array of descriptors
             {
 
-                l_descs = cv::Mat(lfiles.size(), vimg_mat.cols, CV_32FC1);
-                                std::cout<<"\njijijija jijijija jijijija jijijija jijijija jijijija jijijija \n"<<std::endl;
-                vimg_mat.copyTo(l_descs.row(0));
+                l_descs = cv::Mat(lfiles.size(), aux_desc.cols, CV_32FC1);
+                aux_desc.copyTo(l_descs.row(0));
                                 
             }
             else
-                vimg_mat.copyTo(l_descs.row(i));
+                aux_desc.copyTo(l_descs.row(i));
                                 
 #ifndef NDEBUG
             if (__Debug_Level>=3)
@@ -381,13 +386,48 @@ fsiv_lbp(const cv::Mat& img, cv::Mat& lbp){
 	}
 }
 
+
+void 
+fsiv_desc_lbp(const cv::Mat& lbp, cv::Mat& desc, const int* ncells, const bool normalize){
+
+    // The idea is split the lbp into cells and calculate the histogram for each cells. After this, we concatenate all the histograms
+    // to obtain the descriptor
+    std::vector<cv::Mat> histograms(ncells[0] * ncells[1]);
+    std::vector<cv::Mat> cell_vec;
+
+
+    const int cell_h = cvFloor(double(lbp.rows) / ncells[0]);
+	const int cell_w = cvFloor(double(lbp.cols) / ncells[1]);
+
+    // We split the lbp image
+    for(int i=0; i<=lbp.rows - cell_h; ){
+        for (int j = 0; j <= lbp.cols - cell_w; ){
+            
+            // We only want one region of the lbp image, that is why we use Rect
+            cv::Mat aux = lbp(cv::Rect(j, i , cell_w, cell_h)); 
+            cell_vec.push_back(aux.clone());
+            j=j+cell_w;
+        }
+        i=i+cell_h;
+    }
+                          std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
+    // After this, all histograms are calculated
+    for(int i=0; i<cell_vec.size(); i++){
+        		fsiv_lbp_hist(cell_vec[i], histograms[i], normalize);
+
+    }
+
+    cv::hconcat(histograms, desc);
+
+}
+
 void
 fsiv_lbp_hist(const cv::Mat & lbp, cv::Mat & lbp_hist, const bool hist_norm){
-
+      
 	float hranges[] = {0, 256};
 	const float* phranges = hranges;   
     int histSize = 256;
-
+          
     cv::calcHist(&lbp, 1, 0, cv::Mat(), lbp_hist, 1, &histSize, &phranges, true, false);
 
     cv::transpose(lbp_hist, lbp_hist);

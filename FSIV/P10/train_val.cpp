@@ -142,7 +142,6 @@ main (int argc, char* const* argv)
           else
               std::cerr << "Computed training features." << std::endl;
 
-                std::cout<<"\njijijija jijijija jijijija jijijija jijijija jijijija jijijija \n"<<std::endl;
           std::vector<std::string> val_images;
           std::vector<cv::Rect> val_rois;
 
