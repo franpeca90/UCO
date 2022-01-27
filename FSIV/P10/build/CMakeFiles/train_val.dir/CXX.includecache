@@ -6,24 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/fran/Escritorio/Universidad/FSIV/P10/common_code.cpp
-iomanip
--
-iostream
--
-fstream
--
-sstream
--
-algorithm
--
-common_code.hpp
-/home/fran/Escritorio/Universidad/FSIV/P10/common_code.hpp
-opencv2/imgproc.hpp
--
-opencv2/highgui.hpp
--
-
 /home/fran/Escritorio/Universidad/FSIV/P10/common_code.hpp
 string
 -
@@ -35,6 +17,32 @@ iostream
 -
 iomanip
 -
+
+/home/fran/Escritorio/Universidad/FSIV/P10/metrics.hpp
+vector
+-
+opencv2/core.hpp
+-
+
+/home/fran/Escritorio/Universidad/FSIV/P10/train_val.cpp
+iostream
+-
+exception
+-
+opencv2/core/core.hpp
+-
+opencv2/core/utility.hpp
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+opencv2/ml/ml.hpp
+-
+common_code.hpp
+/home/fran/Escritorio/Universidad/FSIV/P10/common_code.hpp
+metrics.hpp
+/home/fran/Escritorio/Universidad/FSIV/P10/metrics.hpp
 
 /usr/include/opencv4/opencv2/core.hpp
 opencv2/core/cvdef.h
@@ -87,6 +95,10 @@ opencv2/core/check.hpp
 /usr/include/opencv4/opencv2/core/check.hpp
 opencv2/core/base.hpp
 -
+
+/usr/include/opencv4/opencv2/core/core.hpp
+opencv2/core.hpp
+/usr/include/opencv4/opencv2/core/opencv2/core.hpp
 
 /usr/include/opencv4/opencv2/core/cv_cpu_dispatch.h
 cv_cpu_config.h
@@ -362,6 +374,10 @@ opencv2/imgcodecs.hpp
 opencv2/videoio.hpp
 /usr/include/opencv4/opencv2/opencv2/videoio.hpp
 
+/usr/include/opencv4/opencv2/highgui/highgui.hpp
+opencv2/highgui.hpp
+/usr/include/opencv4/opencv2/highgui/opencv2/highgui.hpp
+
 /usr/include/opencv4/opencv2/imgcodecs.hpp
 opencv2/core.hpp
 /usr/include/opencv4/opencv2/opencv2/core.hpp
@@ -372,9 +388,31 @@ opencv2/core.hpp
 ./imgproc/segmentation.hpp
 /usr/include/opencv4/opencv2/imgproc/segmentation.hpp
 
+/usr/include/opencv4/opencv2/imgproc/imgproc.hpp
+opencv2/imgproc.hpp
+/usr/include/opencv4/opencv2/imgproc/opencv2/imgproc.hpp
+
 /usr/include/opencv4/opencv2/imgproc/segmentation.hpp
 opencv2/imgproc.hpp
 /usr/include/opencv4/opencv2/imgproc/opencv2/imgproc.hpp
+
+/usr/include/opencv4/opencv2/ml.hpp
+opencv2/core.hpp
+/usr/include/opencv4/opencv2/opencv2/core.hpp
+float.h
+-
+map
+-
+iostream
+-
+opencv2/ml/ml.inl.hpp
+-
+
+/usr/include/opencv4/opencv2/ml/ml.hpp
+opencv2/ml.hpp
+/usr/include/opencv4/opencv2/ml/opencv2/ml.hpp
+
+/usr/include/opencv4/opencv2/ml/ml.inl.hpp
 
 /usr/include/opencv4/opencv2/opencv_modules.hpp
 

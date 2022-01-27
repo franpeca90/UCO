@@ -142,28 +142,32 @@ main (int argc, char* const* argv)
                           << std::endl;
                 return EXIT_FAILURE;
             }
-            
-            cv::Mat canonical_img, img_desc;
-            cv::resize(roi_img, canonical_img, canonical_size);
-            cv::Mat vimg_mat;
-            bool hist_norm = false; //Check if asking by prompt or as option
+
+            cv::Mat img_desc;
+            bool hist_norm = false;
 
             // TODO: select the descriptor depending on the command-line call
             if(desctype == 0){
-                fsiv_desc_simple_gray(canonical_img, img_desc);
+                fsiv_desc_simple_gray(roi_img, img_desc);
             } else { 
                 // The other type of descriptor is LBP
                 cv::Mat lbp;
-                fsiv_lbp(canonical_img, lbp);
-                fsiv_lbp_hist(lbp, img_desc, hist_norm);
+                fsiv_lbp(roi_img, lbp);
+                int ncells[2];
+                ncells[0]=5;
+                ncells[1]=5;
+                fsiv_desc_lbp(lbp, img_desc, ncells, hist_norm);
             }
             cv::Mat y_pred;
 
             //TODO: get the classifier prediction.
+
             clsf->predict(img_desc, y_pred);
+            std::cout <<"Cagaste"<< std::endl;
             //
             assert(!y_pred.empty() && y_pred.rows==1);
 
+            std::cout << "Despues del predict" << std::endl;
 
             auto cat_it = std::find(categories.begin(), categories.end(),
                                     static_cast<size_t>(y_pred.at<float>(0)));

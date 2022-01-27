@@ -38,7 +38,7 @@ compute_confusion_matrix(const cv::Mat& true_labels,
     //TODO: Compute the confussion matrix given the ground truth (true_labels)
     // and the predictions (predicted_labels).
     //Remember: Rows are the Ground Truth. Cols are the predictions.
-    for (auto i = 0; i < predicted_labels.rows; i++){
+    for (int i = 0; i < predicted_labels.rows; i++){
         cmat.at<float>(true_labels.at<float>(i, 0), predicted_labels.at<float>(i, 0)) = cmat.at<float>(true_labels.at<float>(i, 0), predicted_labels.at<float>(i, 0)) + 1;
     }
     //

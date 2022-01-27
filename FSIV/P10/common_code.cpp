@@ -309,9 +309,9 @@ fsiv_compute_desc_from_list(const std::vector<std::string> & lfiles,
                 // The other type of descriptor is LBP
                 cv::Mat lbp;
                 int ncells[2];
-                ncells[1]=5; //This values can change, we are going to use always 5x5
-                ncells[2]=5;
-
+                ncells[0]=5; //This values can change, we are going to use always 5x5
+                ncells[1]=5;
+                
                 fsiv_lbp(canonical_img, lbp);
  
                 fsiv_desc_lbp(lbp, aux_desc, ncells, hist_norm);
@@ -366,8 +366,8 @@ fsiv_lbp(const cv::Mat& img, cv::Mat& lbp){
     // · Documentation: https://www.bytefish.de/blog/local_binary_patterns.html
     lbp = cv::Mat::zeros(img.rows, img.cols, CV_8UC1); // We fill the image with zeros
 
-    for (auto i = 1; i < img.rows - 1; i++){
-		for (auto j = 1; j < img.cols - 1; j++){
+    for (int i = 1; i < img.rows - 1; i++){
+		for (int j = 1; j < img.cols - 1; j++){
 			
             float center = img.at<float>(i, j); // We take our central pixel
 			uchar code = 0;
@@ -392,13 +392,11 @@ fsiv_desc_lbp(const cv::Mat& lbp, cv::Mat& desc, const int* ncells, const bool n
 
     // The idea is split the lbp into cells and calculate the histogram for each cells. After this, we concatenate all the histograms
     // to obtain the descriptor
-    std::vector<cv::Mat> histograms(ncells[0] * ncells[1]);
-    std::vector<cv::Mat> cell_vec;
-
-
     const int cell_h = cvFloor(double(lbp.rows) / ncells[0]);
 	const int cell_w = cvFloor(double(lbp.cols) / ncells[1]);
-
+    std::vector<cv::Mat> histograms(ncells[0] * ncells[1]);
+    std::vector<cv::Mat> cell_vec;
+    
     // We split the lbp image
     for(int i=0; i<=lbp.rows - cell_h; ){
         for (int j = 0; j <= lbp.cols - cell_w; ){
@@ -406,11 +404,12 @@ fsiv_desc_lbp(const cv::Mat& lbp, cv::Mat& desc, const int* ncells, const bool n
             // We only want one region of the lbp image, that is why we use Rect
             cv::Mat aux = lbp(cv::Rect(j, i , cell_w, cell_h)); 
             cell_vec.push_back(aux.clone());
+             
             j=j+cell_w;
         }
         i=i+cell_h;
     }
-                          std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
+                           
     // After this, all histograms are calculated
     for(int i=0; i<cell_vec.size(); i++){
         		fsiv_lbp_hist(cell_vec[i], histograms[i], normalize);
@@ -418,18 +417,17 @@ fsiv_desc_lbp(const cv::Mat& lbp, cv::Mat& desc, const int* ncells, const bool n
     }
 
     cv::hconcat(histograms, desc);
-
 }
 
 void
 fsiv_lbp_hist(const cv::Mat & lbp, cv::Mat & lbp_hist, const bool hist_norm){
-      
+
 	float hranges[] = {0, 256};
 	const float* phranges = hranges;   
     int histSize = 256;
-          
+         
     cv::calcHist(&lbp, 1, 0, cv::Mat(), lbp_hist, 1, &histSize, &phranges, true, false);
-
+  
     cv::transpose(lbp_hist, lbp_hist);
 
     if (hist_norm){

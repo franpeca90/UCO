@@ -102,6 +102,7 @@ main (int argc, char* const* argv)
 
       std::vector<int> categories;
       std::vector<std::string> category_descs;
+
       if (!load_gtsrb_categories(dataset_path, categories, category_descs)) // We load the classes of our patterns
       {
           std::cerr << "Error: could not load the categories dataset file."
@@ -369,6 +370,7 @@ main (int argc, char* const* argv)
                                               predict_labels);
 
       float mrr = compute_mean_recognition_rate(cmat, categories);
+
       float acc = compute_accuracy(cmat);
 
       std::cout << "##############################" << std::endl;
