@@ -112,16 +112,31 @@ int main(int argc, char **argv) {
     	MultilayerPerceptron mlp;
 
         // Parameters of the mlp. For example, mlp.eta = value;
-        
-    	int iterations = -1; // This should be corrected
+    	int iterations = niter; // This should be corrected (Corrected)
+       
+        // Ahora cambiamos todas las variables del objeto mlp
+        mlp.eta = eta;
+        mlp.mu = mu;
+        mlp.decrementFactor = decrementFactor;
+        mlp.validationRatio = valRatio;
 
+        // Ahora indicamos las rutas de los datasets
         // Read training and test data: call to mlp.readData(...)
-    	Dataset * trainDataset = NULL; // This should be corrected
-    	Dataset * testDataset = NULL; // This should be corrected
+    	Dataset * trainDataset = mlp.readData(trainFileName); // This should be corrected
+    	Dataset * testDataset = mlp.readData(Tvalue); // This should be corrected
 
         // Initialize topology vector
-    	int layers=-1; // This should be corrected
-    	int * topology=NULL; // This should be corrected
+    	int layers = nOfLayers + 2; // This should be corrected (Corrected)
+    	int * topology = new int[nOfLayers + 2]; // This should be corrected (Corrected)
+
+        // La primera capa contendra el mismo numero de neuronas que de caracteristicas de los patrones
+        topology[0] = trainDataset->nOfInputs;
+        // Establecemos el numero de neuronas para todas las capas ocultas
+        for(int i = 1 ; i<(hiddenLayers+2-1) ;i++){
+            topology[i] = neuronsPerLayer;
+        }
+        // Establecemos el numero de neuronas para las capas de salida
+        topology[hiddenLayers+2-1] = trainDataset->nOfOutputs;
 
         // Initialize the network using the topology vector
         mlp.initialize(layers+2,topology);
