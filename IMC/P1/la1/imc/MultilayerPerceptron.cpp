@@ -71,49 +71,97 @@ MultilayerPerceptron::~MultilayerPerceptron() {
 // ------------------------------
 // Free memory for the data structures
 void MultilayerPerceptron::freeMemory() {
-
+	delete[] layers;
 }
 
 // ------------------------------
 // Feel all the weights (w) with random numbers between -1 and +1
 void MultilayerPerceptron::randomWeights() {
-
+	
+	for(int i=1 ; i<nOfLayers ; i++){ // Comenzamos asignando pesos desde la primera capa oculta
+		for (int j = 0; j < layers[i].nOfNeurons; j++){ // Para todas y cada una de las neuronas...
+			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) { // ... le asignamos valores a todos los pesos ...
+				layers[i].neurons[j].w[k] = ((double)rand()/RAND_MAX)* pow(-1,rand()); //... entre -1 y +1
+			}
+		}
+	}
 }
 
 // ------------------------------
 // Feed the input neurons of the network with a vector passed as an argument
 void MultilayerPerceptron::feedInputs(double* input) {
-
+	for(int i=0 ; i<layers[0].nOfNeurons ; i++){
+		layers[0].neurons[i].out = input[i];
+	}
 }
 
 // ------------------------------
 // Get the outputs predicted by the network (out vector the output layer) and save them in the vector passed as an argument
 void MultilayerPerceptron::getOutputs(double* output)
 {
-
+	// Se muestran las salidas de la red
+	for (int i = 0; i < layers[nOfLayers-1].nOfNeurons; i++) {
+		output[i] = layers[nOfLayers-1].neurons[i].out;
+	}
 }
 
 // ------------------------------
 // Make a copy of all the weights (copy w in wCopy)
 void MultilayerPerceptron::copyWeights() {
-
+	//Vamos a acceder a los pesos de todas las neuronas con respecto a la capa anterior
+	for (int i = 1; i < nOfLayers ; i++) {
+		for (int j = 0; j < layers[i].nOfNeurons; j++) {
+			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+				// Las guardamos en la variable de la clase
+				layers[i].neurons[j].wCopy[k] = layers[i].neurons[j].w[k];
+			}
+		}
+	}
 }
 
 // ------------------------------
 // Restore a copy of all the weights (copy wCopy in w)
 void MultilayerPerceptron::restoreWeights() {
-
+	// Es igual que copyWeights pero cambiando las variables
+	for (int i = 1; i < nOfLayers ; i++) {
+		for (int j = 0; j < layers[i].nOfNeurons; j++) {
+			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+				// Las guardamos en la variable de la clase
+				layers[i].neurons[j].w[k] = layers[i].neurons[j].wCopy[k]; 
+			}
+		}
+	}
 }
 
 // ------------------------------
 // Calculate and propagate the outputs of the neurons, from the first layer until the last one -->-->
 void MultilayerPerceptron::forwardPropagate() {
-	
+	for(int i=1 ; i<nOfLayers ; i++){ // Desde la primera capa oculta
+		for(int j=0 ; j<layers[i].nOfNeurons ; j++){  
+			double sum = 0.0;
+			for(int k=0 ; k<layers[i-1].nOfNeurons ; k++){  // La salida depende de la anterior
+				// Tomo la salida de la neurona anterior y su peso;
+				sum = sum + (layers[i].neurons[j].w[k] * layers[i-1].neurons[j].out);
+			}
+		// Obtengo toda la suma
+		sum = sum + (layers[i].neurons[j].w[layers[i-1].nOfNeurons])
+		// Ya solo queda aplicar la sigmoide para ver la salida de la neurona
+		layers[i].neurons[j].out = 1.0/(1.0 + -exp(-sum));
+		}
+	}
 }
 
 // ------------------------------
 // Obtain the output error (MSE) of the out vector of the output layer wrt a target vector and return it
 double MultilayerPerceptron::obtainError(double* target) {
+	double single_error = 0.0;
+	
+	// Vammos por las neuronas de la capa final
+	for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++) {
+		// Obtenemos el error en base a la salida
+		single_error = single_error + (layers[nOfLayers-1].neurons[i].out-target[i]) * (layers[nOfLayers-1].neurons[i].out-target[i]);
+	}
+	
 	return -1;
 }
 
@@ -121,33 +169,111 @@ double MultilayerPerceptron::obtainError(double* target) {
 // ------------------------------
 // Backpropagate the output error wrt a vector passed as an argument, from the last layer to the first one <--<--
 void MultilayerPerceptron::backpropagateError(double* target) {
+
+	double sum = 0.0;
 	
+	//Calculamos el delta de todas las neuronas de la capa de salida
+	for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; j++){
+		// Esto es la expresion de la derivada, se esta calculando el delta para la capa de salida (nOfLayers-1)
+		layers[nOfLayers-1].neurons[i].delta = -1*(target[j]-layers[nOfLayers-1].neurons[j].out) * (layers[nOfLayers-1].neurons[j].out * (1-layers[nOfLayers-1].neurons[j].out));
+	}
+
+	// Ahora, recorremos las capas en orden descendente desde la anterior a la de salida
+	for(int i=nOfLayers-2 ; i>0 ; i--){
+		// Para la capa actual, recorremos sus neuronas
+		for(int j=0 ; j<layers[i].nOfNeurons; j++){
+			// Tomamos en cuenta tambien las neuronas de la capa siguiente, pues nos tomaremos datos de estas
+			for(int k=0 ; k<layers[i+1].nOfNeurons ; k++){
+				// Esto es la sumatoria de los pesos por el delta de la capa siguiente
+				sum = sum + layers[i+1].neurons[k].w[j+1]*layers[i+1].neurons[k].delta;
+			}
+			// Ahora el delta de la capa actual es la sumatoria anterior por la salida de esa neurona por uno menos esa misma salida
+			layers[i].neurons[j].delta = sum*layers[i].neurons[j].out*(1-layers[i].neurons[j].out));
+			
+			//Reseteamos la cuenta
+			sum = 0.0;
+		}
+	}
 }
 
 
 // ------------------------------
 // Accumulate the changes produced by one pattern and save them in deltaW
 void MultilayerPerceptron::accumulateChange() {
-
+	// Avanzamos por todas las capas desde la primera
+	for(int i=1 ; i<nOfLayers; i++){
+		// Recorremos todas las neuronas
+		for(int j=0 ; j<layers[i].nOfNeurons ; j++){
+			// Tomo las neuronas de la capa anterior
+			for(int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++){
+				// El cambio viene dado por los deltas y la salida
+				layers[i].neurons[j].deltaW[k] = layers[i].neurons[j].deltaW[k]+layers[i].neurons[j].delta*layers[i-1].neurons[k-1].out;
+			}
+			// Para la primera, el cambio es el propio delta, no depende de las salidas
+			layers[i].neurons[j].deltaW[0] = layers[i].neurons[j].deltaW[0]+layers[i].neurons[j].delta;
+		}
+	}
 }
 
 // ------------------------------
 // Update the network weights, from the first layer to the last one
 void MultilayerPerceptron::weightAdjustment() {
-
-
+	// Vamos a traves de las capas
+	for (int i=1 ; i<nOfLayers ; i++) {
+		// Para todas las neuronas
+		for (int j=0 ; j<layers[i].nOfNeurons ; j++) {
+			// El valor de mu cambia por cada capa
+			auxMu = pow(decrementFactor, -((nOfLayers-1)-i)) * mu;
+			// Tomamos las neuronas de la capa siguiente
+			for (int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++) {
+				// El nuevo peso es el peso actual menos eta por la acumulacion de los pesos menos mu por eta por la acumulacion
+				// Esto es aplicando el concepto de momentum
+				layers[i].neurons[j].w[k] = layers[i].neurons[j].w[k]-(eta*layers[i].neurons[j].deltaW[k])-(muPerLayer*(eta*layers[i].neurons[j].lastDeltaW[k]));
+			}
+			layers[i].neurons[j].w[0] = layers[i].neurons[j].w[0]-(eta*layers[i].neurons[j].deltaW[0])-(muPerLayer*(eta*layers[i].neurons[j].lastDeltaW[0]))
+		}
+	}
 }
 
 // ------------------------------
 // Print the network, i.e. all the weight matrices
 void MultilayerPerceptron::printNetwork() {
+	
+	cout << "\n----------------------------";
+	for (int i = 1; i < nOfLayers; i++){
+		
+		cout << "Layer " << i << std::endl;
+		
+		for (int j = 0; j < layers[i].nOfNeurons; j++){
+			for (int k = 0; k < layers[i - 1].nOfNeurons + 1; k++)
+				cout << layers[i].neurons[j].w[k] << " \n";
+		}
+		cout << "\n\n";
+	}
+	cout << "\n----------------------------";
 }
 
 // ------------------------------
 // Perform an epoch: forward propagate the inputs, backpropagate the error and adjust the weights.
 // input is the input vector of the pattern and target is the desired output vector of the pattern
 void MultilayerPerceptron::performEpochOnline(double* input, double* target) {
+	// Ahora relizamos todos los pasos para una sola epoca
 
+	// Establecemos todos los deltas a 0
+	for (int i=1; i<nOfLayers ; i++) {
+		for (int j=0 ; j<layers[i].nOfNeurons; j++) {
+			for (int k=0 ; k<layers[i-1].nOfNeurons+1; k++) {
+				layers[i].neurons[j].deltaW[k] = 0;
+			}
+		}
+	}
+
+	// Realizamos la epoca con los mismos pasos que en las diapositivas de clase
+	feedInputs(input);
+	forwardPropagate();
+	backpropagateError(target);
+	accumulateChange();
+	weightAdjustment();
 }
 
 // ------------------------------
@@ -225,7 +351,20 @@ void MultilayerPerceptron::trainOnline(Dataset* trainDataset) {
 // ------------------------------
 // Test the network with a dataset and return the MSE
 double MultilayerPerceptron::test(Dataset* testDataset) {
-	return -1.0;
+	
+	double mse = 0.0;
+
+	// Usamos todos los patrones del dataset
+	for(int i=0 ; i<testDataset->nOfPatterns ; i++){
+		// Usamos las funciones ya creadas para obtener las salidas
+		feedInputs(testDataset->inputs[i]);
+		forwardPropagate();
+		// En base a esas salidas, calculamos el error
+		mse = mse + obtainError(testDataset->outputs[i]);
+	}
+
+	return mse / testDataset->nOfPatterns;
+
 }
 
 
@@ -273,10 +412,68 @@ void MultilayerPerceptron::runOnlineBackPropagation(Dataset * trainDataset, Data
 
 	double validationError = 1;
 
+	double previusValidationError = 0; // Variables para controlar cuando se debe de parar el programa,
+	int iterWithoutImproving = 0; // esta especificado en el guion de las practicas
+	int iterWithoutImprovingValidation = 0;
+
+	Dataset* dataset_aux = NULL; //Dataset auxiliar que contendra temporalmente el dataset train original
+	Dataset* validation_part = NULL; // y la otra particion sera para la validacion
+
+
+	// Ahora realizamos la particion del dataset inicial de train para poder usar la validacion
 	// Generate validation data
 	if(validationRatio > 0 && validationRatio < 1){
-		// .......
-	}
+		dataset_aux = trainDataset; // La informacion original la contendra esta variable auxiliar
+
+		// Damos los valores al nuevo dataset de validacion
+		// El numero de entradas y de salidas no varia
+		validation_part->nOfInputs = dataset_aux->nOfInputs;
+		validation_part->nOfOutputs = dataset_aux->nOfOutputs;
+		
+		// Lo que si cambia es la proporcion de patrones usada
+		validation_part->nOfPatterns = dataset_aux->nOfPatterns*validationRatio;
+		 
+		validation_part->inputs = new double*[validation_part->nOfPatterns];
+		validation_part->outputs = new double*[validation_part->nOfPatterns];
+		for(int i=0 ; i<validation_part.nOfPatterns ; i++){
+			validation_part->inputs[i] = new double[validation_part->nOfInputs];
+			validation_part->outputs[i] = new double[validation_part->nOfOutputs];
+		}
+
+
+		// Ahora formamos el nuevo dataset de entrenamiento
+		// Las entradas y salidas son las mismas
+		trainDataset->nOfInputs = dataset_aux->nOfInputs;
+		trainDataset->nOfOutputs = dataset_aux->nOfOutputs;
+
+		// Cambia la proporcion de patrones usados
+		trainDataset->nOfPatterns = dataset_aux->nOfPatterns - validation_part->nOfPatterns;
+		
+		trainDataset->inputs = new double*[trainDataset->nOfPatterns];
+		trainDataset->outputs = new double*[trainDataset->nOfPatterns];
+
+		for (int i = 0; i < trainDataset->nOfPatterns; i++) {
+			trainDataset->inputs[i] = new double[trainDataset->nOfInputs];
+			trainDataset->outputs[i] = new double[trainDataset->nOfOutputs];
+		}
+
+		// Ahora seleccionamos de forma aleatoria los patrones que habra en cada dataset
+		// Usamos un vector auxiliar para guardar los resultados de las posiciones aleatorias que seran usadas
+		int* aux = integerRandomVectoWithoutRepeating(0,dataset_aux->nOfPatterns-1,dataset_aux->nOfPatterns);
+		int* index = 0;
+
+		for(int i = 0; i<validation_part->nOfPatterns; i++) {
+			validation_part->inputs[i] = dataset_aux->inputs[aux[i]];
+			validation_part->outputs[i] = dataset_aux->outputs[aux[i]];
+			index = i; // Serviara para ver "por donde se ha quedado" el vector
+		}
+
+		// Ahora, la parte de train, empezara por la posicion donde se encontraba el vector al final del bucle anterior
+		for (int j = 0 ; j<trainDataset->nOfPatterns ; j++) {
+			trainDataset->inputs[j] = dataset_aux->inputs[aux[i+j]]; // Empiezo desde la posicion donde me he quedado
+			trainDataset->outputs[j] = dataset_aux->outputs[aux[i+j]]; // De esta forma solo tengo que aumentar j
+		}
+	} 
 
 
 	// Learning
@@ -284,7 +481,7 @@ void MultilayerPerceptron::runOnlineBackPropagation(Dataset * trainDataset, Data
 
 		trainOnline(trainDataset);
 		double trainError = test(trainDataset);
-		if(countTrain==0 || trainError < minTrainError){
+		if(countTrain==0 || trainError < minTrainError){ // Segunda condicion de parada
 			minTrainError = trainError;
 			copyWeights();
 			iterWithoutImproving = 0;
@@ -307,10 +504,36 @@ void MultilayerPerceptron::runOnlineBackPropagation(Dataset * trainDataset, Data
 		// BE CAREFUL: in this case, we have to save the last validation error, not the minimum one
 		// Apart from this, the way the stopping condition is checked is the same than that
 		// applied for the training set
+		
+		// Tercera condicion de parada
+		// Solo se comprueba si el usuario ha decidido usar validacion cruzada
+		if(validationRatio > 0 && validationRatio < 1){
+			// Testeamos el conjunto de validacion
+			validationError = test(validationError);
+			// Realizamos la copia cada vez que el error es menor que el anterior
+			if(countTrain=0 || validationError < previusValidationError){
+				copyWeights();
+				iterWithoutImprovingValidation = 0;
+			} else if ((validationError-previusValidationError) < 0.00001){// Tolerancia
+				iterWithoutImprovingValidation = 0;
+			} else {
+				iterWithoutImprovingValidation++;
+			}
+
+			// Si tras 50 iteraciones no ha disminuido el error, restauramos
+			if(iterWithoutImprovingValidation == 50){
+				// Similar a la parada anterior
+				cout << "We exit because the validation is not improving!!"<< endl;
+				restoreWeights();
+				countTrain = maxiter;
+			}
+			// El error en la siguiente iteracion sera considerado como el previo
+			previusValidationError = validationError
+		}
 
 		cout << "Iteration " << countTrain << "\t Training error: " << trainError << "\t Validation error: " << validationError << endl;
 
-	} while ( countTrain<maxiter );
+	} while ( countTrain<maxiter ); // Primera condicion de parada
 
 	cout << "NETWORK WEIGHTS" << endl;
 	cout << "===============" << endl;
