@@ -242,9 +242,9 @@ void MultilayerPerceptron::weightAdjustment() {
 void MultilayerPerceptron::printNetwork() {
 	
 	for (int i = 1; i < nOfLayers; i++){
-		
+		// Indicamos de que capa vamos a mostrar los pesos
 		cout << "Layer " << i << std::endl;
-		
+		// Mostramos los pesos de la neurona
 		for (int j = 0; j < layers[i].nOfNeurons; j++){
 			for (int k = 0; k < layers[i - 1].nOfNeurons + 1; k++)
 				cout << layers[i].neurons[j].w[k] << " \n";
@@ -271,10 +271,8 @@ void MultilayerPerceptron::performEpochOnline(double* input, double* target) {
 
 	// Realizamos la epoca con los mismos pasos que en las diapositivas de clase
 	feedInputs(input);
-	
 	forwardPropagate();
 	backpropagateError(target);
-		
 	accumulateChange();
 	weightAdjustment();
 }
@@ -357,7 +355,7 @@ void MultilayerPerceptron::trainOnline(Dataset* trainDataset) {
 // ------------------------------
 // Test the network with a dataset and return the MSE
 double MultilayerPerceptron::test(Dataset* testDataset) {
-	
+	// Se podria haber usado una funcion como la 'predict'
 	double mse = 0.0;
 
 	// Usamos todos los patrones del dataset
@@ -368,7 +366,7 @@ double MultilayerPerceptron::test(Dataset* testDataset) {
 		// En base a esas salidas, calculamos el error
 		mse = mse + obtainError(testDataset->outputs[i]);
 	}
-
+	// Calculamos el error cuadratico medio final y lo de volvemos
 	mse = mse / testDataset->nOfPatterns;
 	return mse;
 
@@ -422,72 +420,67 @@ void MultilayerPerceptron::runOnlineBackPropagation(Dataset * trainDataset, Data
 	double previusValidationError = 0; // Variables para controlar cuando se debe de parar el programa
 	int iterWithoutImprovingValidation = 0;
 
-	Dataset* dataset_aux = NULL; //Dataset auxiliar que contendra temporalmente el dataset train original
-	Dataset* validation_part = NULL; // y la otra particion sera para la validacion
-
-
-	// Ahora realizamos la particion del dataset inicial de train para poder usar la validacion
+	Dataset* TrainData = new Dataset; // Datasets que contendra parte del original
+	Dataset* validationData = new Dataset;
+	
 	// Generate validation data
 	if(validationRatio > 0 && validationRatio < 1){
-		dataset_aux = trainDataset; // La informacion original la contendra esta variable auxiliar
-
-		// Damos los valores al nuevo dataset de validacion
-		// El numero de entradas y de salidas no varia
-		validation_part->nOfInputs = dataset_aux->nOfInputs;
-		validation_part->nOfOutputs = dataset_aux->nOfOutputs;
 		
-		// Lo que si cambia es la proporcion de patrones usada
-		validation_part->nOfPatterns = dataset_aux->nOfPatterns*validationRatio;
-		 
-		validation_part->inputs = new double*[validation_part->nOfPatterns];
-		validation_part->outputs = new double*[validation_part->nOfPatterns];
-		for(int i=0 ; i<validation_part->nOfPatterns ; i++){
-			validation_part->inputs[i] = new double[validation_part->nOfInputs];
-			validation_part->outputs[i] = new double[validation_part->nOfOutputs];
+		// Para ambos datasets, el numero de entrada y de salidas es el mismo
+		validationData->nOfInputs = trainDataset->nOfInputs;
+		validationData->nOfOutputs = trainDataset->nOfOutputs;
+		// Indicamos el numero de patrones con la proporcion dada por el usuario
+		validationData->nOfPatterns = trainDataset->nOfPatterns*validationRatio;
+		// Ahora indicamos cuantos patrones habra 
+		validationData->inputs = new double*[validationData->nOfPatterns];
+		validationData->outputs = new double*[validationData->nOfPatterns];
+		for (int i = 0; i < validationData->nOfPatterns; i++) {
+			validationData->inputs[i] = new double[validationData->nOfInputs];
+			validationData->outputs[i] = new double[validationData->nOfOutputs];
 		}
-
-
-		// Ahora formamos el nuevo dataset de entrenamiento
-		// Las entradas y salidas son las mismas
-		trainDataset->nOfInputs = dataset_aux->nOfInputs;
-		trainDataset->nOfOutputs = dataset_aux->nOfOutputs;
-
-		// Cambia la proporcion de patrones usados
-		trainDataset->nOfPatterns = dataset_aux->nOfPatterns - validation_part->nOfPatterns;
 		
-		trainDataset->inputs = new double*[trainDataset->nOfPatterns];
-		trainDataset->outputs = new double*[trainDataset->nOfPatterns];
-
-		for (int i = 0; i < trainDataset->nOfPatterns; i++) {
-			trainDataset->inputs[i] = new double[trainDataset->nOfInputs];
-			trainDataset->outputs[i] = new double[trainDataset->nOfOutputs];
+		// Mismo numero de entrada y de salidas
+		TrainData->nOfInputs = trainDataset->nOfInputs;
+		TrainData->nOfOutputs = trainDataset->nOfOutputs;
+		// El resto de patrones perteneceran al conjunto de train
+		TrainData->nOfPatterns = trainDataset->nOfPatterns - validationData->nOfPatterns;
+		// Igual que antes pero para train
+		TrainData->inputs = new double*[TrainData->nOfPatterns];
+		TrainData->outputs = new double*[TrainData->nOfPatterns];
+		for (int i = 0; i < TrainData->nOfPatterns; i++) {
+			TrainData->inputs[i] = new double[TrainData->nOfInputs];
+			TrainData->outputs[i] = new double[TrainData->nOfOutputs];
 		}
 
-		// Ahora seleccionamos de forma aleatoria los patrones que habra en cada dataset
-		// Usamos un vector auxiliar para guardar los resultados de las posiciones aleatorias que seran usadas
-		int* aux = integerRandomVectoWithoutRepeating(0,dataset_aux->nOfPatterns-1,dataset_aux->nOfPatterns);
-		int index = 0;
+		// Ahora obtenemos los patrones de forma aleatoria
+		int *randomVector = integerRandomVectoWithoutRepeating(0,trainDataset->nOfPatterns-1,trainDataset->nOfPatterns);
+		int index;
 
-		for(int i = 0; i<validation_part->nOfPatterns; i++) {
-			validation_part->inputs[i] = dataset_aux->inputs[aux[i]];
-			validation_part->outputs[i] = dataset_aux->outputs[aux[i]];
-			index = i; // Serviara para ver "por donde se ha quedado" el vector
+		// Los introducimos en los vectores correspondientes para cada dataset
+		for(int i = 0; i < validationData->nOfPatterns; i++) {
+			validationData->inputs[i] = trainDataset->inputs[randomVector[i]];
+			validationData->outputs[i] = trainDataset->outputs[randomVector[i]];
+			index = i;
 		}
-
-		// Ahora, la parte de train, empezara por la posicion donde se encontraba el vector al final del bucle anterior
-		for (int j = 0 ; j<trainDataset->nOfPatterns ; j++) {
-			trainDataset->inputs[j] = dataset_aux->inputs[aux[index+j]]; // Empiezo desde la posicion donde me he quedado
-			trainDataset->outputs[j] = dataset_aux->outputs[aux[index+j]]; // De esta forma solo tengo que aumentar j
+		// Los mimo pero para trian
+		for (int j = 0; j < TrainData->nOfPatterns; j++) {
+			TrainData->inputs[j] = trainDataset->inputs[randomVector[index]];
+			TrainData->outputs[j] = trainDataset->outputs[randomVector[index]];
+			index++;
 		}
-	} 
+	}else{ // En el caso de que no se use train
+		TrainData = trainDataset;
+	} /* Se ha probado a usar un dataset auxiliar igual que train para no tener que modificar los argumentos de funciones posteriores,
+		 pero no funcionaba correctamente el programa, por tanto, se ha dejado asi. Es por ello que funciones como 'test' tienen cambiado
+		 el argumento con respecto a lo ficheros originales subidos en Moodle. */
 
 
 	// Learning
 	do {
 
-		trainOnline(trainDataset);
+		trainOnline(TrainData);
 		
-		double trainError = test(trainDataset);
+		double trainError = test(TrainData);
 		if(countTrain==0 || trainError < minTrainError){ // Segunda condicion de parada
 			minTrainError = trainError;
 			copyWeights();
@@ -504,7 +497,6 @@ void MultilayerPerceptron::runOnlineBackPropagation(Dataset * trainDataset, Data
 			countTrain = maxiter;
 		}
 
-
 		countTrain++;
 
 		// Check validation stopping condition and force it
@@ -516,9 +508,9 @@ void MultilayerPerceptron::runOnlineBackPropagation(Dataset * trainDataset, Data
 		// Solo se comprueba si el usuario ha decidido usar validacion cruzada
 		if(validationRatio > 0 && validationRatio < 1){
 			// Testeamos el conjunto de validacion
-			validationError = test(validation_part);
+			validationError = test(validationData);
 			// Realizamos la copia cada vez que el error es menor que el anterior
-			if(countTrain=0 || validationError < previusValidationError){
+			if(countTrain==0 || validationError < previusValidationError){
 				copyWeights();
 				iterWithoutImprovingValidation = 0;
 			} else if ((validationError-previusValidationError) < 0.00001){// Tolerancia

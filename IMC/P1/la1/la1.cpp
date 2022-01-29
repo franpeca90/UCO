@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
             cout << "SEED " << seeds[i] << endl;
             cout << "**********" << endl;
             srand(seeds[i]);
-
+cout << "||| Entro al run Online |||" << endl;
             mlp.runOnlineBackPropagation(trainDataset,testDataset,iterations,&(trainErrors[i]),&(testErrors[i]));
 
             cout << "We end!! => Final test error: " << testErrors[i] << endl;
