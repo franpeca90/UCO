@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
             cout << "SEED " << seeds[i] << endl;
             cout << "**********" << endl;
             srand(seeds[i]);
-cout << "||| Entro al run Online |||" << endl;
+
             mlp.runOnlineBackPropagation(trainDataset,testDataset,iterations,&(trainErrors[i]),&(testErrors[i]));
 
             cout << "We end!! => Final test error: " << testErrors[i] << endl;
@@ -193,8 +193,8 @@ cout << "||| Entro al run Online |||" << endl;
           sumStdTest = sumStdTest + (testErrors[i] - averageTestError) * (testErrors[i] - averageTestError);
         }
 
-        stdTestError = sqrt(sumStdTest/4);
-        stdTrainError = sqrt(sumStdTrain/4);
+        stdTestError = sqrt(sumStdTest/5);
+        stdTrainError = sqrt(sumStdTrain/5);
 
         cout << "FINAL REPORT" << endl;
         cout << "************" << endl;

@@ -155,17 +155,17 @@ void MultilayerPerceptron::forwardPropagate() {
 double MultilayerPerceptron::obtainError(double* target) {
 	double single_error = 0.0;
 	
-	// Vammos por las neuronas de la capa final
+	// Creamos un vector para ver las salidas de la neurona
+	double* salidas = new double[layers[nOfLayers-1].nOfNeurons];
+	getOutputs(salidas);
+	// Vamms por las neuronas de la capa final
 	for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++) {
 		// Obtenemos el error en base a la salida
-		single_error = single_error + (layers[nOfLayers-1].neurons[i].out-target[i]) * (layers[nOfLayers-1].neurons[i].out-target[i]);
-		single_error = single_error + pow(target[i] - layers[nOfLayers-1].neurons[i].out, 2);
+		single_error = single_error + pow(salidas[i]-target[i],2);
 	}
 	single_error = single_error / layers[nOfLayers-1].nOfNeurons;
 	
 	return single_error;
-
-	
 }
 
 
