@@ -23,6 +23,7 @@ using namespace std;
 
 int main(int argc, char **argv) {
     // Process arguments of the command line
+    
     bool tflag = 0, Tflag = 0, wflag = 0, pflag = 0;
     char *Tvalue = NULL, *wvalue = NULL;
     int c;
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
 
     // a: Option that requires an argument
     // a:: The argument required is optional
-    while ((c = getopt(argc, argv, "t:i::l:n:e:m:v:h:d:T:w:p")) != -1)
+    while ((c = getopt(argc, argv, "t:i:l:n:e:m:v:h:d:T:w:p")) != -1)
     {
         // The parameters needed for using the optional prediction mode of Kaggle have been included.
         // You should add the rest of parameters needed for the lab assignment.
@@ -103,6 +104,12 @@ int main(int argc, char **argv) {
         }
     }
 
+    // El programa termina en caso de que no se introduzcan los argumentos minimos necesarios
+    if(!tflag || !Tflag){
+        cout<<"Error: Incorrect arguments"<<endl;
+        return EXIT_FAILURE;
+    }
+
     if (!pflag) {
         //////////////////////////////////
         // TRAINING AND EVALUATION MODE //
@@ -113,7 +120,6 @@ int main(int argc, char **argv) {
 
         // Parameters of the mlp. For example, mlp.eta = value;
     	int iterations = niter; // This should be corrected (Corrected)
-       
         // Ahora cambiamos todas las variables del objeto mlp
         mlp.eta = eta;
         mlp.mu = mu;
@@ -122,25 +128,21 @@ int main(int argc, char **argv) {
 
         // Ahora indicamos las rutas de los datasets
         // Read training and test data: call to mlp.readData(...)
-    	Dataset * trainDataset = mlp.readData(trainFileName); // This should be corrected
-    	Dataset * testDataset = mlp.readData(Tvalue); // This should be corrected
 
-        // Initialize topology vector
-    	int layers = nOfLayers + 2; // This should be corrected (Corrected)
-    	int * topology = new int[nOfLayers + 2]; // This should be corrected (Corrected)
+    	Dataset* trainDataset = mlp.readData(trainFileName); // This should be corrected
+    	Dataset* testDataset = mlp.readData(Tvalue); // This should be corrected
 
-        // La primera capa contendra el mismo numero de neuronas que de caracteristicas de los patrones
+        int layers = nOfLayers+2;
+    	int * topology = new int[nOfLayers+2]; // This should be corrected
+
         topology[0] = trainDataset->nOfInputs;
-        // Establecemos el numero de neuronas para todas las capas ocultas
-        for(int i = 1 ; i<(hiddenLayers+2-1) ;i++){
-            topology[i] = neuronsPerLayer;
+        for (int i = 1; i < layers-1; i++) {
+            topology[i] = nOfNeurons;
         }
-        // Establecemos el numero de neuronas para las capas de salida
-        topology[hiddenLayers+2-1] = trainDataset->nOfOutputs;
+        topology[layers-1] = trainDataset->nOfOutputs;
 
         // Initialize the network using the topology vector
-        mlp.initialize(layers+2,topology);
-
+        mlp.initialize(layers,topology);
 
         // Seed for random numbers
         int seeds[] = {1,2,3,4,5};
@@ -152,7 +154,9 @@ int main(int argc, char **argv) {
             cout << "SEED " << seeds[i] << endl;
             cout << "**********" << endl;
             srand(seeds[i]);
+
             mlp.runOnlineBackPropagation(trainDataset,testDataset,iterations,&(trainErrors[i]),&(testErrors[i]));
+
             cout << "We end!! => Final test error: " << testErrors[i] << endl;
 
             // We save the weights every time we find a better model
@@ -165,10 +169,32 @@ int main(int argc, char **argv) {
 
         cout << "WE HAVE FINISHED WITH ALL THE SEEDS" << endl;
 
-        double averageTestError = 0, stdTestError = 0;
         double averageTrainError = 0, stdTrainError = 0;
-        
+        double averageTestError = 0, stdTestError = 0;
+
         // Obtain training and test averages and standard deviations
+        double sumAverageTrain = 0, sumAverageTest = 0;
+        double sumStdTrain = 0,  sumStdTest = 0;
+
+        // Obtenemos la sumatoria de los errores tanto para train como para test
+        for (int i = 0; i < 5; i++) {
+            sumAverageTrain = sumAverageTrain + trainErrors[i];
+            sumAverageTest = sumAverageTest + testErrors[i];
+        }
+        
+        // Calculamos la media. Ser usara tambien para la desviacion tipica
+        averageTrainError = sumAverageTrain / 5; // Dividimos entre el total de semillas
+        averageTestError = sumAverageTest / 5;
+
+        // Calculamos la desviacion tipica
+
+        for (int i = 0; i < 5; i++) {
+          sumStdTrain = sumStdTest + (trainErrors[i] - averageTrainError) * (trainErrors[i] - averageTrainError);
+          sumStdTest = sumStdTest + (testErrors[i] - averageTestError) * (testErrors[i] - averageTestError);
+        }
+
+        stdTestError = sqrt(sumStdTest/4);
+        stdTrainError = sqrt(sumStdTrain/4);
 
         cout << "FINAL REPORT" << endl;
         cout << "************" << endl;

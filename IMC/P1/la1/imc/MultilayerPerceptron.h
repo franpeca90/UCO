@@ -12,6 +12,7 @@ namespace imc{
 // Suggested structures
 // ---------------------
 struct Neuron {
+	double net;             /* summatory of the weights of the neuron */
 	double  out;            /* Output produced by the neuron (out_j^h)*/
 	double  delta;          /* Derivative of the output produced by the neuron (delta_j^h)*/
 	double* w;              /* Input weight vector (w_{ji}^h)*/

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/fran/Escritorio/Universidad/IMC/P1/la1/imc/include
+CXX_INCLUDES = 
 
 CXX_FLAGS = -std=c++11
 

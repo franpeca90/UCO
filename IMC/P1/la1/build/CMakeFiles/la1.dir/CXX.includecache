@@ -6,12 +6,6 @@
 
 #IncludeRegexTransform: 
 
-../imc/include/MultilayerPerceptron.h
-
-../imc/include/util.h
-cstdlib
--
-
 /home/fran/Escritorio/Universidad/IMC/P1/la1/imc/MultilayerPerceptron.cpp
 MultilayerPerceptron.h
 /home/fran/Escritorio/Universidad/IMC/P1/la1/imc/MultilayerPerceptron.h
@@ -32,23 +26,9 @@ limits
 math.h
 -
 
-/home/fran/Escritorio/Universidad/IMC/P1/la1/la1.cpp
-stdio.h
--
-stdlib.h
--
-unistd.h
--
-iostream
--
-ctime
--
+/home/fran/Escritorio/Universidad/IMC/P1/la1/imc/MultilayerPerceptron.h
+
+/home/fran/Escritorio/Universidad/IMC/P1/la1/imc/util.h
 cstdlib
 -
-string.h
--
-math.h
--
-imc/MultilayerPerceptron.h
-/home/fran/Escritorio/Universidad/IMC/P1/la1/imc/MultilayerPerceptron.h
 
