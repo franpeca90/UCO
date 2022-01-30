@@ -129,9 +129,10 @@ int main(int argc, char **argv) {
         // Ahora indicamos las rutas de los datasets
         // Read training and test data: call to mlp.readData(...)
 
-    	Dataset* trainDataset = mlp.readData(trainFileName); // This should be corrected
-    	Dataset* testDataset = mlp.readData(Tvalue); // This should be corrected
+    	Dataset* trainDataset = mlp.readData(trainFileName); // This should be corrected (Corrected)
+    	Dataset* testDataset = mlp.readData(Tvalue); // This should be corrected (Corrected)
 
+        // Mi variable layers tiene TODAS las capas, entrada, salida y ocultas
         int layers = nOfLayers+2;
     	int * topology = new int[nOfLayers+2]; // This should be corrected
 

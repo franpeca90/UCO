@@ -105,7 +105,7 @@ void MultilayerPerceptron::getOutputs(double* output)
 // ------------------------------
 // Make a copy of all the weights (copy w in wCopy)
 void MultilayerPerceptron::copyWeights() {
-	//Vamos a acceder a los pesos de todas las neuronas con respecto a la capa anterior
+	// Vamos a acceder a los pesos de todas las neuronas con respecto a la capa anterior
 	for (int i = 1; i < nOfLayers ; i++) {
 		for (int j = 0; j < layers[i].nOfNeurons; j++) {
 			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
@@ -208,7 +208,8 @@ void MultilayerPerceptron::accumulateChange() {
 			// Tomo las neuronas de la capa anterior
 			for(int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++){
 				// El cambio viene dado por los deltas y la salida
-				layers[i].neurons[j].deltaW[k] = layers[i].neurons[j].deltaW[k]+layers[i].neurons[j].delta*layers[i-1].neurons[k-1].out;			}
+				layers[i].neurons[j].deltaW[k] = layers[i].neurons[j].deltaW[k]+layers[i].neurons[j].delta*layers[i-1].neurons[k-1].out;			
+			}
 			// Para la primera, el cambio es el propio delta, no depende de las salidas
 			layers[i].neurons[j].deltaW[0] = layers[i].neurons[j].deltaW[0]+layers[i].neurons[j].delta;
 		}
@@ -345,8 +346,8 @@ Dataset* MultilayerPerceptron::readData(const char *fileName) {
 // ------------------------------
 // Perform an online training for a specific trainDataset
 void MultilayerPerceptron::trainOnline(Dataset* trainDataset) {
-	int i;
-	for(i=0; i<trainDataset->nOfPatterns; i++){
+
+	for(int i=0; i<trainDataset->nOfPatterns; i++){
 		performEpochOnline(trainDataset->inputs[i], trainDataset->outputs[i]);
 	}
 	

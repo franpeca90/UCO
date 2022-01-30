@@ -156,7 +156,7 @@ void MultilayerPerceptron::restoreWeights() {
 // Calculate and propagate the outputs of the neurons, from the first layer until the last one -->-->
 void MultilayerPerceptron::forwardPropagate() {
 	// Hay que diferenciar los dos casos, normal o softmax
-	if(outputFunction == 0){ // Caso de online
+	if(outputFunction){ // Caso de online
 		for(int i=1 ; i<nOfLayers ; i++){ // Desde la primera capa oculta
 			for(int j=0 ; j<layers[i].nOfNeurons ; j++){  // Vamos por todas las neuronas
 				
@@ -218,16 +218,114 @@ double MultilayerPerceptron::obtainError(double* target, int errorFunction) {
 // Backpropagate the output error wrt a vector passed as an argument, from the last layer to the first one <--<--
 // errorFunction=1 => Cross Entropy // errorFunction=0 => MSE
 void MultilayerPerceptron::backpropagateError(double* target, int errorFunction) {
+	// Ahora hay que tener en cuenta que hay dos tipos de salidas
+	// Tambien hay que tener en cuenta que hay dos tipos de error a usar
+	// por tanto la expresion de la derivada (los deltas) tambien cambia
+	// Sabiendo esto, tenemos que diferenciar el calculo de los deltas para la capa de salida
+
+	if(outputFunction){ // Caso en la que no se aplica la softmax
+		if(errorFunction){ // Caso en el que apliquemos el MSE, sera igual que en la priemra practica
+			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
+				// Esto es la expresion de la derivada, se esta calculando el delta para la capa de salida (nOfLayers-1)
+				layers[nOfLayers-1].neurons[i].delta = -1*(target[i]-layers[nOfLayers-1].neurons[i].out) * (layers[nOfLayers-1].neurons[i].out * (1-layers[nOfLayers-1].neurons[i].out)); 
+			}
+		} else {
+			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
+				// Derivada para la entropia cruzada
+				layers[nOfLayers-1].neurons[i].delta = -1*(target[j] / layers[nOfLayers-1].neurons[j].out) * (layers[nOfLayers-1].neurons[j].out * (1 - layers[nOfLayers-1].neurons[j].out)); 
+			}
+		}
+
+	} else { // Caso en la que aplicamos softmax
+		double sum = 0.0;
+		int I;
+		for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){
+			for(int j=0 ; j<layers[nOfLayers-1].nOfNeurons ; j++){
+				if (i == j) { // Para poder calcular la validacion cruzada
+					I = 1;
+				}else{
+					I = 0;
+				}
+				// Diferenciamos entre error MSE y validacion cruzada
+				if(errorFunction){ // Caso en el que usamos MSE
+					sum = sum + ((target[j] - layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
+				} else { // Caso en el que usamos validacion cruzada
+					sum = sum + ((target[j] / layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
+				}
+
+				layers[nOfLayers-1].neurons[j].delta = -sum;
+				sum = 0;
+			}
+		}
+
+	} 
+
+
+	// Ahora, recorremos las capas en orden descendente desde la anterior a la de salida
+	// Lo "complicado" era saber el delta de la capa final, ya que despues de saber esta
+	// el resto de deltas se calculan multiplicando la anterior por por el peso
+	for(int i=nOfLayers-2 ; i>=1 ; i--){
+		// Para la capa actual, recorremos sus neuronas
+		for(int j=0 ; j<layers[i].nOfNeurons; j++){
+			// Tomamos en cuenta tambien las neuronas de la capa siguiente, pues nos tomaremos datos de estas
+			for(int k=0 ; k<layers[i+1].nOfNeurons ; k++){
+				// Esto es la sumatoria de los pesos por el delta de la capa siguiente
+				sum = sum + layers[i+1].neurons[k].w[j+1]*layers[i+1].neurons[k].delta;
+			}
+			// Ahora el delta de la capa actual es la sumatoria anterior por la salida de esa neurona por uno menos esa misma salida
+			layers[i].neurons[j].delta = sum*layers[i].neurons[j].out*(1-layers[i].neurons[j].out);
+			//Reseteamos la cuenta
+			sum = 0.0;
+		}
+	}
 }
 
 // ------------------------------
 // Accumulate the changes produced by one pattern and save them in deltaW
 void MultilayerPerceptron::accumulateChange() {
+	// Avanzamos por todas las capas desde la primera
+	for(int i=1 ; i<nOfLayers; i++){
+		// Recorremos todas las neuronas
+		for(int j=0 ; j<layers[i].nOfNeurons ; j++){
+			// Tomo las neuronas de la capa anterior
+			if (layers[i].neurons[j].deltaW != NULL){ // Comprobamos que no tomemos el NULL
+				for(int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++){
+					// El cambio viene dado por los deltas y la salida
+					layers[i].neurons[j].deltaW[k] = layers[i].neurons[j].deltaW[k]+layers[i].neurons[j].delta*layers[i-1].neurons[k-1].out;
+				}
+				// Para la primera, el cambio es el propio delta, no depende de las salidas
+				layers[i].neurons[j].deltaW[0] = layers[i].neurons[j].deltaW[0] + layers[i].neurons[j].delta;
+			}
+		}
+	}
 }
 
 // ------------------------------
 // Update the network weights, from the first layer to the last one
 void MultilayerPerceptron::weightAdjustment() {
+	// Vamos a traves de las capas
+	double auxMu = 0.0;
+
+	if(online){
+		N = 1; // En el caso online se queda tal como esta
+	} else {
+		N = nOfTrainingPatterns; // En offline, hay que dividir entre el total de patrones usados
+	}
+
+	for (int i=1 ; i<nOfLayers ; i++) {
+		// Para todas las neuronas
+		for (int j=0 ; j<layers[i].nOfNeurons ; j++) {
+			// El valor de mu cambia por cada capa
+			auxMu = pow(decrementFactor, -((nOfLayers-1)-i)) * mu;
+			// Tomamos las neuronas de la capa siguiente
+			for (int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++) {
+				// El nuevo peso es el peso actual menos eta por la acumulacion de los pesos menos mu por eta por la acumulacion
+				// Esto es aplicando el concepto de momentum
+				layers[i].neurons[j].w[k] = layers[i].neurons[j].w[k]-(eta*layers[i].neurons[j].deltaW[k])/N -(auxMu*(eta*layers[i].neurons[j].lastDeltaW[k]))/N;
+			}
+			layers[i].neurons[j].w[0] = layers[i].neurons[j].w[0]-(eta*layers[i].neurons[j].deltaW[0])/N -(auxMu*(eta*layers[i].neurons[j].lastDeltaW[0]))/N;
+		}
+	}
 }
 
 // ------------------------------

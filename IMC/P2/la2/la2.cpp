@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
             case 'o': // Bandera para indicar el uso de la función softmax
 				oflag = true;
 				break;
-            case 'f':
+            case 'f': // Indica el tipo de error usado
 				fflag = true;
 				errorType = atoi(optarg);
 				break;
