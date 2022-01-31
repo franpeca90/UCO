@@ -62,9 +62,9 @@ int MultilayerPerceptron::initialize(int nl, int npl[]) {
 		layers[i].neurons = new Neuron [layers[i].nOfNeurons];
 	}
 
-	for(int i=1;i<this->nOfLayers;i++){//la capa 0 es de entrada
-		for(int j=0;j<layers[i].nOfNeurons;j++){
-			if ((outputFunction == 1) and (i== this->nOfLayers-1) and (j==layers[i].nOfNeurons-1)){
+	for(int i=1 ; i<nOfLayers ; i++){
+		for(int j=0 ; j<layers[i].nOfNeurons ; j++){
+			if ((outputFunction == 1) && (i == nOfLayers-1) && (j == layers[i].nOfNeurons-1)){
 				layers[i].neurons[j].w = NULL;
 				layers[i].neurons[j].wCopy = NULL;
 				layers[i].neurons[j].deltaW = NULL;
@@ -124,7 +124,7 @@ void MultilayerPerceptron::feedInputs(double* input) {
 void MultilayerPerceptron::getOutputs(double* output) {
 	// No cambia respecto a la practica anterior
 	// Se muestran las salidas de la red
-	for (int i = 0; i < layers[nOfLayers-1].nOfNeurons; i++) {
+	for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++) {
 		output[i] = layers[nOfLayers-1].neurons[i].out;
 	}
 }
@@ -171,7 +171,7 @@ void MultilayerPerceptron::forwardPropagate() {
 		double sum = 0.0; // Sumatoria del denominador de la softmax
 		double sumNeuronas = 0.0;
 		
-		if(outputFunction == 1 && i==this->nOfLayers-1){// Caso en el que apliquemos la softmax
+		if(outputFunction == 1 && i==nOfLayers-1){// Caso en el que apliquemos la softmax
 			// Solo contemplamos el caso en el que estemos en la ultima capa
 			for(int j=0 ; j<layers[i].nOfNeurons ; j++){ // Recorremos todas esas neuronas
 				if(layers[i].neurons[j].w!=NULL){ // Cuidado con las neuronas en NULL
@@ -201,6 +201,7 @@ void MultilayerPerceptron::forwardPropagate() {
 			} else { // En el caso de no usar softmax
 				layers[i].neurons[j].out = 1/(1+exp(-(layers[i].neurons[j].out)));
 			}
+			
 		}
 		
 	}	
@@ -216,11 +217,11 @@ double MultilayerPerceptron::obtainError(double* target, int errorFunction) {
 	double* salidas = new double[layers[nOfLayers-1].nOfNeurons];
 	getOutputs(salidas);
 	
-	if(errorFunction){ // Caso de MSE
+	if(!errorFunction){ // Caso de MSE
 		for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){		
 			single_error = single_error + pow(salidas[i]-target[i],2);
 		}
-	} else {
+	} else { // Caso de la entropia
 		for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){
 			single_error = single_error + (target[i]*log(salidas[i]));
 		}
@@ -293,7 +294,7 @@ void MultilayerPerceptron::backpropagateError(double* target, int errorFunction)
 			}
 			// Ahora el delta de la capa actual es la sumatoria anterior por la salida de esa neurona por uno menos esa misma salida
 			layers[i].neurons[j].delta = sum*layers[i].neurons[j].out*(1-layers[i].neurons[j].out);
-
+			//cout << "DELTAS: "<< layers[i].neurons[j].delta << endl;
 		}
 	}
 }
@@ -354,7 +355,7 @@ void MultilayerPerceptron::printNetwork() {
 		cout << "Layer " << i << std::endl;
 		// Mostramos los pesos de la neurona
 		for (int j = 0; j < layers[i].nOfNeurons; j++){
-			if ((outputFunction) && (layers[i].neurons[j].w!=NULL)){ // Caso de la neurona a NULL
+			if (layers[i].neurons[j].w!=NULL){ // Caso de la neurona a NULL
 				for (int k = 0; k < layers[i - 1].nOfNeurons + 1; k++){
 					cout << layers[i].neurons[j].w[k] << " \n";
 				}
@@ -374,11 +375,13 @@ void MultilayerPerceptron::performEpoch(double* input, double* target, int error
 	// Ahora relizamos todos los pasos para una sola epoca
 
 	// Establecemos todos los deltas a 0
-	for (int i=1; i<nOfLayers ; i++) {
-		for (int j=0 ; j<layers[i].nOfNeurons; j++) {
-			for (int k=0 ; k<layers[i-1].nOfNeurons+1; k++) {
-				if(layers[i].neurons[j].deltaW!=NULL){
-					layers[i].neurons[j].deltaW[k] = 0.0;
+	if(online){
+		for (int i=1; i<nOfLayers ; i++) {
+			for (int j=0 ; j<layers[i].nOfNeurons; j++) {
+				for (int k=0 ; k<layers[i-1].nOfNeurons+1; k++) {
+					if(layers[i].neurons[j].deltaW!=NULL){
+						layers[i].neurons[j].deltaW[k] = 0.0;
+					}
 				}
 			}
 		}
@@ -465,6 +468,19 @@ Dataset* MultilayerPerceptron::readData(const char *fileName) {
 // errorFunction=1 => Cross Entropy // errorFunction=0 => MSE
 void MultilayerPerceptron::train(Dataset* trainDataset, int errorFunction) {
 	
+	if (!online){ // Para el caso off-line, los deltas deben de establecerse aqui a 0
+		for (int i = 1; i < nOfLayers; i++) {
+			for (int j = 0; j < layers[i].nOfNeurons; j++) {
+				for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+					if (layers[i].neurons[j].deltaW != NULL) {
+						layers[i].neurons[j].deltaW[k] = 0;
+					}
+				}
+			}
+		}
+	}
+
+
 	// Realizo las epocas
 	for(int i=0; i<trainDataset->nOfPatterns; i++){
 		performEpoch(trainDataset->inputs[i], trainDataset->outputs[i], errorFunction);
