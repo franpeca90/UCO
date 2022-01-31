@@ -194,8 +194,9 @@ int main(int argc, char **argv) {
           sumStdTest = sumStdTest + (testErrors[i] - averageTestError) * (testErrors[i] - averageTestError);
         }
 
-        stdTestError = sqrt(sumStdTest/5);
         stdTrainError = sqrt(sumStdTrain/5);
+        stdTestError = sqrt(sumStdTest/5);
+        
 
         cout << "FINAL REPORT" << endl;
         cout << "************" << endl;
