@@ -97,12 +97,12 @@ void MultilayerPerceptron::freeMemory() {
 // ------------------------------
 // Fill all the weights (w) with random numbers between -1 and +1
 void MultilayerPerceptron::randomWeights() {
-
-	for(int i=1 ; i<nOfLayers ; i++){ // Comenzamos asignando pesos desde la primera capa oculta
-		for (int j = 0; j < layers[i].nOfNeurons; j++){ // Para todas y cada una de las neuronas...
-			if (not(outputFunction == 1 and layers[i].neurons[j].w==NULL)){
-				for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) { // ... le asignamos valores a todos los pesos ...
-					layers[i].neurons[j].w[k] = (rand()/(double)RAND_MAX)*(1-(-1)) + (-1); //... entre -1 y +1
+	// Asignamos los pesos de forma aleatoria al inicio
+	for (int i = 1; i < nOfLayers ; i++) {
+		for (int j = 0; j < layers[i].nOfNeurons; j++) {
+			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+				if (layers[i].neurons[j].w != NULL) {
+					layers[i].neurons[j].w[k] = (rand()/(double)RAND_MAX)*(1-(-1))+(-1);
 				}
 			}
 		}
@@ -128,7 +128,6 @@ void MultilayerPerceptron::getOutputs(double* output) {
 		output[i] = layers[nOfLayers-1].neurons[i].out;
 	}
 }
-
 // ------------------------------
 // Make a copy of all the weights (copy w in wCopy)
 void MultilayerPerceptron::copyWeights() {
@@ -236,14 +235,14 @@ double MultilayerPerceptron::obtainError(double* target, int errorFunction) {
 void MultilayerPerceptron::backpropagateError(double* target, int errorFunction) {
 	// Ahora hay que tener en cuenta que hay dos tipos de salidas
 	// Tambien hay que tener en cuenta que hay dos tipos de error a usar
-	// por tanto la expresion de la derivada (los deltas) tambien cambia
+	// Por tanto la expresion de la derivada (los deltas) tambien cambia
 	// Sabiendo esto, tenemos que diferenciar el calculo de los deltas para la capa de salida
 	double sum = 0.0;
 	if(!outputFunction){ // Caso en la que no se aplica la softmax
- 		if(errorFunction){ // Caso en el que apliquemos el MSE, sera igual que en la priemra practica
+ 		if(!errorFunction){ // Caso en el que apliquemos el MSE, sera igual que en la priemra practica
 			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
 				// Esto es la expresion de la derivada, se esta calculando el delta para la capa de salida (nOfLayers-1)
-				layers[nOfLayers-1].neurons[i].delta = -1*(target[i]-layers[nOfLayers-1].neurons[i].out) * (layers[nOfLayers-1].neurons[i].out * (1-layers[nOfLayers-1].neurons[i].out)); 
+				layers[nOfLayers-1].neurons[i].delta = -2*(target[i]-layers[nOfLayers-1].neurons[i].out) * (layers[nOfLayers-1].neurons[i].out * (1-layers[nOfLayers-1].neurons[i].out)); 
 			}
 		} else {
 			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
@@ -263,8 +262,8 @@ void MultilayerPerceptron::backpropagateError(double* target, int errorFunction)
 					I = 0;
 				}
 				// Diferenciamos entre error MSE y validacion cruzada
-				if(errorFunction){ // Caso en el que usamos MSE
-					sum = sum + ((target[j] - layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
+				if(!errorFunction){ // Caso en el que usamos MSE
+					sum = sum + ((target[j] -2*layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
 				} else { // Caso en el que usamos validacion cruzada
 					sum = sum + ((target[j] / layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
 				}
@@ -372,27 +371,20 @@ void MultilayerPerceptron::printNetwork() {
 // If the algorithm is offline, the weightAdjustment must be performed in the "train" function
 // errorFunction=1 => Cross Entropy // errorFunction=0 => MSE
 void MultilayerPerceptron::performEpoch(double* input, double* target, int errorFunction) {
-	// Ahora relizamos todos los pasos para una sola epoca
-
-	// Establecemos todos los deltas a 0
-	if(online){
-		for (int i=1; i<nOfLayers ; i++) {
-			for (int j=0 ; j<layers[i].nOfNeurons; j++) {
-				for (int k=0 ; k<layers[i-1].nOfNeurons+1; k++) {
-					if(layers[i].neurons[j].deltaW!=NULL){
-						layers[i].neurons[j].deltaW[k] = 0.0;
-					}
+	for (int i = 1; i < nOfLayers; i++) {
+		for (int j = 0; j < layers[i].nOfNeurons; j++) {
+			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+				if (layers[i].neurons[j].deltaW != NULL) {
+					layers[i].neurons[j].deltaW[k] = 0;
 				}
 			}
 		}
 	}
-
 	feedInputs(input);
 	forwardPropagate();
 	backpropagateError(target, errorFunction);
 	accumulateChange();
-
-	if (online) { // Solo actualizo los pesos al terminar una epoca en online
+	if (online) {
 		weightAdjustment();
 	}
 
@@ -467,29 +459,14 @@ Dataset* MultilayerPerceptron::readData(const char *fileName) {
 // Train the network for a dataset (one iteration of the external loop)
 // errorFunction=1 => Cross Entropy // errorFunction=0 => MSE
 void MultilayerPerceptron::train(Dataset* trainDataset, int errorFunction) {
-	
-	if (!online){ // Para el caso off-line, los deltas deben de establecerse aqui a 0
-		for (int i = 1; i < nOfLayers; i++) {
-			for (int j = 0; j < layers[i].nOfNeurons; j++) {
-				for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
-					if (layers[i].neurons[j].deltaW != NULL) {
-						layers[i].neurons[j].deltaW[k] = 0;
-					}
-				}
-			}
-		}
-	}
-
-
 	// Realizo las epocas
 	for(int i=0; i<trainDataset->nOfPatterns; i++){
 		performEpoch(trainDataset->inputs[i], trainDataset->outputs[i], errorFunction);
-	}
 
-	if(!online){ // Solo cambio los pesos tras todas las epocas en offline
-		weightAdjustment();
+		if(!online){ // Solo cambio los pesos tras todas las epocas en offline
+			weightAdjustment();
+		}
 	}
-
 }
 
 // ------------------------------
@@ -507,8 +484,13 @@ double MultilayerPerceptron::test(Dataset* dataset, int errorFunction) {
 		// En base a esas salidas, calculamos el error
 		total_error = total_error + obtainError(dataset->outputs[i], errorFunction);
 	}
-	// Calculamos el error cuadratico medio final y lo de volvemos
-	total_error = total_error / dataset->nOfPatterns;
+	// Calculamos el error correspondiente
+	if(!errorFunction){ // MSE
+		total_error = total_error / dataset->nOfPatterns;
+	} else { // Caso de la entropia
+		total_error = -1 * (total_error / dataset->nOfPatterns);
+	}
+	
 	return total_error;
 
 }
@@ -533,25 +515,26 @@ double MultilayerPerceptron::testClassification(Dataset* dataset) {
 		int indexMaxVal = 0;
 		int indexOut = 0;
 
+		// Queremos saber la posicion de los patrones
 		for(int j=1 ; j<dataset->nOfOutputs ; j++){
 			// Busco el la posicion del valor mayor de la salida generada por la neurona
 			if(salidas[indexMaxVal] < salidas[j]){
 				indexMaxVal = j;
 			}
-			// Si el valor de la salida del DATASET para la posicion del mayor valor de la salida de la red, es menor que el que comprobamos...
-			if(dataset->outputs[i][indexMaxVal] < dataset->outputs[i][j]){
-				// ...entonces tomamos ese valor del dataset como el mayor
-				// Tomamos su posicion
+			// Comprobamos la salida del dataset
+			if(dataset->outputs[i][indexOut] < dataset->outputs[i][j]){
+				// Tomamos la posicion del mayor
 				indexOut = j;
 			}
-		}	
 
-		// Cuando ambos indices coinciden, aumentamos 
-		if(indexMaxVal == indexOut){
-			sum++;
-		}
+			// Cuando ambos indices coinciden, aumentamos 
+			if(indexMaxVal == indexOut){
+				sum++;
+			}
+		}	
 	}
 
+	// En base al total de patrones bien clasificados, calculo el CCR
 	ccr = 100 * (sum / (double)dataset->nOfPatterns);
 
 	return ccr;
