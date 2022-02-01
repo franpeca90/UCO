@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 				fflag = true;
 				errorType = atoi(optarg);
 				break;
-            case 's':
+            case 's': // Indica si vamos a usar softmax
 				sflag = true;
 				break;
 

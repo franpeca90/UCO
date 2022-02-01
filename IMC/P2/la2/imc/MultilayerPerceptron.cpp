@@ -114,6 +114,7 @@ void MultilayerPerceptron::randomWeights() {
 // Feed the input neurons of the network with a vector passed as an argument
 void MultilayerPerceptron::feedInputs(double* input) {
 	// No cambia respecto a la practica anterior
+	// Se introducen la informacion de los patrones
 	for(int i=0 ; i<layers[0].nOfNeurons ; i++){
 		layers[0].neurons[i].out = input[i];
 	}
@@ -154,7 +155,7 @@ void MultilayerPerceptron::restoreWeights() {
 		for (int j = 0; j < layers[i].nOfNeurons; j++) {
 			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
 				// Las guardamos en la variable de la clase
-				if (layers[i].neurons[j].w != NULL) { // Nos ahorramos el peso
+				if (layers[i].neurons[j].w != NULL) {
 					layers[i].neurons[j].w[k] = layers[i].neurons[j].wCopy[k];
 				} 
 			}
@@ -170,16 +171,16 @@ void MultilayerPerceptron::forwardPropagate() {
 		double sum = 0.0; // Sumatoria del denominador de la softmax
 		double sumNeuronas = 0.0;
 		
-		if(outputFunction == 1 && i==nOfLayers-1){// Caso en el que apliquemos la softmax
+		if(outputFunction){// Caso en el que apliquemos la softmax
 			// Solo contemplamos el caso en el que estemos en la ultima capa
 			for(int j=0 ; j<layers[i].nOfNeurons ; j++){ // Recorremos todas esas neuronas
-				if(layers[i].neurons[j].w!=NULL){ // Cuidado con las neuronas en NULL
+				if(layers[nOfLayers-1].neurons[j].w!=NULL){ // Cuidado con las neuronas en NULL
 					sum = 0.0; // Realizamos las operaciones para posteriormente usar la softmax
-					sum = layers[i].neurons[j].w[0];
-					for(int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++){
-						sum = sum + layers[i].neurons[j].w[k] * layers[i-1].neurons[k-1].out;
+					sum = layers[nOfLayers-1].neurons[j].w[0];
+					for(int k=1 ; k<layers[nOfLayers-2].nOfNeurons+1 ; k++){
+						sum = sum + layers[nOfLayers-1].neurons[j].w[k] * layers[nOfLayers-2].neurons[k-1].out;
 					}
-					sumNeuronas = sumNeuronas + exp(sum);				
+					sumNeuronas = sumNeuronas + exp(sum); // Sumamos para poder obtener el denominador de la softmax			
 				}
 			}
 		}
@@ -187,7 +188,7 @@ void MultilayerPerceptron::forwardPropagate() {
 		for(int j=0 ; j<layers[i].nOfNeurons ; j++){ // Ahora recorro todas las capas
 			if(layers[i].neurons[j].w!=NULL){ // Vuelvo a comprobar que no sean NULL
 				layers[i].neurons[j].out = layers[i].neurons[j].w[0];
-				for(int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++){
+				for(int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++){ // Realizamos la ponderacion igual que siempre
 					layers[i].neurons[j].out = layers[i].neurons[j].out + (layers[i].neurons[j].w[k] * layers[i-1].neurons[k-1].out);
 				}
 			} else {
@@ -195,9 +196,9 @@ void MultilayerPerceptron::forwardPropagate() {
 			}
 
 			// Ahora realizo la ultima operacion de la salida de las neuronas
-			if((outputFunction) && (i==nOfLayers-1) ){ // En caso de usar softmax
+			if((outputFunction) && (i==nOfLayers-1) ){ // En caso de usar softmax y solo si estamos en la ultima capa, la de salida
 				layers[i].neurons[j].out = exp(layers[i].neurons[j].out)/(1+(sumNeuronas));			
-			} else { // En el caso de no usar softmax
+			} else { // En el caso de no usar softmax o de estar en el resto de neuronas
 				layers[i].neurons[j].out = 1/(1+exp(-(layers[i].neurons[j].out)));
 			}
 			
@@ -217,11 +218,11 @@ double MultilayerPerceptron::obtainError(double* target, int errorFunction) {
 	getOutputs(salidas);
 	
 	if(!errorFunction){ // Caso de MSE
-		for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){		
+		for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){	// Realizo el calculo correspondiente
 			single_error = single_error + pow(salidas[i]-target[i],2);
 		}
 	} else { // Caso de la entropia
-		for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){
+		for (int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){ // Realizo el calculo correspondiente
 			single_error = single_error + (target[i]*log(salidas[i]));
 		}
 	}
@@ -239,12 +240,13 @@ void MultilayerPerceptron::backpropagateError(double* target, int errorFunction)
 	// Sabiendo esto, tenemos que diferenciar el calculo de los deltas para la capa de salida
 	double sum = 0.0;
 	if(!outputFunction){ // Caso en la que no se aplica la softmax
- 		if(!errorFunction){ // Caso en el que apliquemos el MSE, sera igual que en la priemra practica
+ 		
+		 if(!errorFunction){ // Caso en el que apliquemos el MSE, sera igual que en la primera practica
 			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
 				// Esto es la expresion de la derivada, se esta calculando el delta para la capa de salida (nOfLayers-1)
 				layers[nOfLayers-1].neurons[i].delta = -2*(target[i]-layers[nOfLayers-1].neurons[i].out) * (layers[nOfLayers-1].neurons[i].out * (1-layers[nOfLayers-1].neurons[i].out)); 
 			}
-		} else {
+		} else { // Caso de la entropia cruzada
 			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
 				// Derivada para la entropia cruzada
 				layers[nOfLayers-1].neurons[i].delta = -1*(target[i] / layers[nOfLayers-1].neurons[i].out) * (layers[nOfLayers-1].neurons[i].out * (1 - layers[nOfLayers-1].neurons[i].out)); 
@@ -256,15 +258,18 @@ void MultilayerPerceptron::backpropagateError(double* target, int errorFunction)
 		int I;
 		for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){
 			for(int j=0 ; j<layers[nOfLayers-1].nOfNeurons ; j++){
-				if (i == j) { // Para poder calcular la validacion cruzada
-					I = 1;
-				}else{
-					I = 0;
-				}
 				// Diferenciamos entre error MSE y validacion cruzada
 				if(!errorFunction){ // Caso en el que usamos MSE
 					sum = sum + ((target[j] -2*layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
+				
 				} else { // Caso en el que usamos validacion cruzada
+					
+					if (i == j) { // Para poder calcular la validacion cruzada
+						I = 1;
+					}else{
+						I = 0;
+					}
+					
 					sum = sum + ((target[j] / layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
 				}
 
@@ -273,8 +278,7 @@ void MultilayerPerceptron::backpropagateError(double* target, int errorFunction)
 			}
 		}
 
-	} 
-
+	}
 
 	// Ahora, recorremos las capas en orden descendente desde la anterior a la de salida
 	// Lo "complicado" era saber el delta de la capa final, ya que despues de saber esta
@@ -286,14 +290,13 @@ void MultilayerPerceptron::backpropagateError(double* target, int errorFunction)
 			sum = 0.0;
 			// Tomamos en cuenta tambien las neuronas de la capa siguiente, pues nos tomaremos datos de estas
 			for(int k=0 ; k<layers[i+1].nOfNeurons ; k++){
-				if((outputFunction!=1) && (layers[i+1].neurons[k].w!=NULL)){
+				if(layers[i+1].neurons[k].w!=NULL){
 					// Esto es la sumatoria de los pesos por el delta de la capa siguiente
 					sum = sum + layers[i+1].neurons[k].w[j+1]*layers[i+1].neurons[k].delta;
 				}
 			}
 			// Ahora el delta de la capa actual es la sumatoria anterior por la salida de esa neurona por uno menos esa misma salida
 			layers[i].neurons[j].delta = sum*layers[i].neurons[j].out*(1-layers[i].neurons[j].out);
-			//cout << "DELTAS: "<< layers[i].neurons[j].delta << endl;
 		}
 	}
 }
@@ -335,11 +338,14 @@ void MultilayerPerceptron::weightAdjustment() {
 		auxEta = pow(decrementFactor, -1*((nOfLayers-1)-i))*eta; // Para cada capa, cambio el valor de eta
 		for(int j=0 ; j<layers[i].nOfNeurons ; j++){
 			if (layers[i].neurons[j].w != NULL) { // Con cuidado de no usar una neurona NULL
+				// Para el sesgo
+				layers[i].neurons[j].w[0] = layers[i].neurons[j].w[0]-((auxEta * layers[i].neurons[j].deltaW[0])/N)-((mu * (auxEta * layers[i].neurons[j].lastDeltaW[0]))/N);
+				// Realizamos el ajuste para el resto
 				for(int k=1 ; k<layers[i-1].nOfNeurons+1 ; k++){ // Voy a traves de las neuronas
 					// Realizo el cambio de pesos segun la expresion del "momento" 
 					layers[i].neurons[j].w[k] = layers[i].neurons[j].w[k]-((auxEta * layers[i].neurons[j].deltaW[k])/N)-((mu * (auxEta * layers[i].neurons[j].lastDeltaW[k]))/N);
-				}
-				layers[i].neurons[j].w[0] = layers[i].neurons[j].w[0]-((auxEta * layers[i].neurons[j].deltaW[0])/N)-((mu * (auxEta * layers[i].neurons[j].lastDeltaW[0]))/N);
+				} // Por ultimo, el sesgo
+				
 			}
 		}
 	}
@@ -371,6 +377,7 @@ void MultilayerPerceptron::printNetwork() {
 // If the algorithm is offline, the weightAdjustment must be performed in the "train" function
 // errorFunction=1 => Cross Entropy // errorFunction=0 => MSE
 void MultilayerPerceptron::performEpoch(double* input, double* target, int errorFunction) {
+	// Se establecen los deltas a 0
 	for (int i = 1; i < nOfLayers; i++) {
 		for (int j = 0; j < layers[i].nOfNeurons; j++) {
 			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
@@ -380,11 +387,12 @@ void MultilayerPerceptron::performEpoch(double* input, double* target, int error
 			}
 		}
 	}
+	// Realizamos los pasos en orden
 	feedInputs(input);
 	forwardPropagate();
 	backpropagateError(target, errorFunction);
 	accumulateChange();
-	if (online) {
+	if (online) { // Solo cambiamos pesos en cada epoca en modo online
 		weightAdjustment();
 	}
 
@@ -490,7 +498,7 @@ double MultilayerPerceptron::test(Dataset* dataset, int errorFunction) {
 	} else { // Caso de la entropia
 		total_error = -1 * (total_error / dataset->nOfPatterns);
 	}
-	
+
 	return total_error;
 
 }
@@ -512,14 +520,14 @@ double MultilayerPerceptron::testClassification(Dataset* dataset) {
 		double* salidas = new double[layers[nOfLayers-1].nOfNeurons];
 		getOutputs(salidas);
 
-		int indexMaxVal = 0;
+		int indexSal = 0;
 		int indexOut = 0;
 
 		// Queremos saber la posicion de los patrones
 		for(int j=1 ; j<dataset->nOfOutputs ; j++){
 			// Busco el la posicion del valor mayor de la salida generada por la neurona
-			if(salidas[indexMaxVal] < salidas[j]){
-				indexMaxVal = j;
+			if(salidas[indexSal] < salidas[j]){
+				indexSal = j;
 			}
 			// Comprobamos la salida del dataset
 			if(dataset->outputs[i][indexOut] < dataset->outputs[i][j]){
@@ -528,7 +536,7 @@ double MultilayerPerceptron::testClassification(Dataset* dataset) {
 			}
 
 			// Cuando ambos indices coinciden, aumentamos 
-			if(indexMaxVal == indexOut){
+			if(indexSal == indexOut){
 				sum++;
 			}
 		}	
