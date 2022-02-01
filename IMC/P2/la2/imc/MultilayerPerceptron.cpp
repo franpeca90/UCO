@@ -98,11 +98,11 @@ void MultilayerPerceptron::freeMemory() {
 // Fill all the weights (w) with random numbers between -1 and +1
 void MultilayerPerceptron::randomWeights() {
 
-	for(int i=1 ; i<nOfLayers ; i++){ // Comenzamos asignando pesos desde la primera capa oculta
-		for (int j = 0; j < layers[i].nOfNeurons; j++){ // Para todas y cada una de las neuronas...
-			if (not(outputFunction == 1 and layers[i].neurons[j].w==NULL)){
-				for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) { // ... le asignamos valores a todos los pesos ...
-					layers[i].neurons[j].w[k] = (rand()/(double)RAND_MAX)*(1-(-1)) + (-1); //... entre -1 y +1
+	for (int i = 1; i < nOfLayers ; i++) {
+		for (int j = 0; j < layers[i].nOfNeurons; j++) {
+			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
+				if (layers[i].neurons[j].w != NULL) {
+					layers[i].neurons[j].w[k] = randomDouble(-1, 1);
 				}
 			}
 		}
@@ -128,7 +128,6 @@ void MultilayerPerceptron::getOutputs(double* output) {
 		output[i] = layers[nOfLayers-1].neurons[i].out;
 	}
 }
-
 // ------------------------------
 // Make a copy of all the weights (copy w in wCopy)
 void MultilayerPerceptron::copyWeights() {
@@ -156,7 +155,7 @@ void MultilayerPerceptron::restoreWeights() {
 			for (int k = 0; k < layers[i-1].nOfNeurons+1; k++) {
 				// Las guardamos en la variable de la clase
 				if (layers[i].neurons[j].w != NULL) { // Nos ahorramos el peso
-					layers[i].neurons[j].wCopy[k] = layers[i].neurons[j].w[k];
+					layers[i].neurons[j].w[k] = layers[i].neurons[j].wCopy[k];
 				} 
 			}
 		}
@@ -234,67 +233,62 @@ double MultilayerPerceptron::obtainError(double* target, int errorFunction) {
 // Backpropagate the output error wrt a vector passed as an argument, from the last layer to the first one <--<--
 // errorFunction=1 => Cross Entropy // errorFunction=0 => MSE
 void MultilayerPerceptron::backpropagateError(double* target, int errorFunction) {
-	// Ahora hay que tener en cuenta que hay dos tipos de salidas
-	// Tambien hay que tener en cuenta que hay dos tipos de error a usar
-	// por tanto la expresion de la derivada (los deltas) tambien cambia
-	// Sabiendo esto, tenemos que diferenciar el calculo de los deltas para la capa de salida
-	double sum = 0.0;
-	if(!outputFunction){ // Caso en la que no se aplica la softmax
- 		if(errorFunction){ // Caso en el que apliquemos el MSE, sera igual que en la priemra practica
-			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
-				// Esto es la expresion de la derivada, se esta calculando el delta para la capa de salida (nOfLayers-1)
-				layers[nOfLayers-1].neurons[i].delta = -1*(target[i]-layers[nOfLayers-1].neurons[i].out) * (layers[nOfLayers-1].neurons[i].out * (1-layers[nOfLayers-1].neurons[i].out)); 
+double acumulador;
+
+	if(outputFunction == 0){//si no es softMax
+
+		if(errorFunction == 0){
+			for(int j=0;j<layers[nOfLayers-1].nOfNeurons;j++){//para 	 -2(d-out)out(1-out)para la sigmoide g()=out(1-out)
+				this->layers[nOfLayers-1].neurons[j].delta = -2*(target[j]-layers[nOfLayers-1].neurons[j].out)*layers[nOfLayers-1].neurons[j].out*(1-layers[nOfLayers-1].neurons[j].out);//con el 2 disminuye el error
 			}
-		} else {
-			for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons; i++){
-				// Derivada para la entropia cruzada
-				layers[nOfLayers-1].neurons[i].delta = -1*(target[i] / layers[nOfLayers-1].neurons[i].out) * (layers[nOfLayers-1].neurons[i].out * (1 - layers[nOfLayers-1].neurons[i].out)); 
+		}else{
+			for(int j=0;j<layers[nOfLayers-1].nOfNeurons;j++){//para cada neurona de salida calculamos su derivada entropia
+				this->layers[nOfLayers-1].neurons[j].delta = -(target[j]/layers[nOfLayers-1].neurons[j].out)*layers[nOfLayers-1].neurons[j].out*(1-layers[nOfLayers-1].neurons[j].out);//con el 2 disminuye el error
 			}
 		}
 
-	} else { // Caso en la que aplicamos softmax
+	}else if(outputFunction == 1){//si es softMax
 
-		int I;
-		for(int i=0 ; i<layers[nOfLayers-1].nOfNeurons ; i++){
-			for(int j=0 ; j<layers[nOfLayers-1].nOfNeurons ; j++){
-				if (i == j) { // Para poder calcular la validacion cruzada
-					I = 1;
-				}else{
-					I = 0;
+		if(errorFunction == 0){
+			for(int j=0;j<layers[nOfLayers-1].nOfNeurons;j++){//para cada neurona de salida calculamos su derivada 
+				this->layers[nOfLayers-1].neurons[j].delta = 0.0;
+				for(int i=0;i<layers[nOfLayers-1].nOfNeurons;i++){//para cada neurona de salida calculamos su derivada 
+					int Findicador;
+					if(i==j){
+						Findicador = 1;
+					}else{
+						Findicador = 0;
+					}
+					this->layers[nOfLayers-1].neurons[j].delta += (target[i]-layers[nOfLayers-1].neurons[i].out)*layers[nOfLayers-1].neurons[j].out*(Findicador-layers[nOfLayers-1].neurons[i].out);//con el 2 disminuye el error
 				}
-				// Diferenciamos entre error MSE y validacion cruzada
-				if(errorFunction){ // Caso en el que usamos MSE
-					sum = sum + ((target[j] - layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
-				} else { // Caso en el que usamos validacion cruzada
-					sum = sum + ((target[j] / layers[nOfLayers-1].neurons[j].out) * layers[nOfLayers-1].neurons[i].out * (I - layers[nOfLayers-1].neurons[j].out));
-				}
-
-				layers[nOfLayers-1].neurons[j].delta = -sum;
-				sum = 0;
+				this->layers[nOfLayers-1].neurons[j].delta=-2*this->layers[nOfLayers-1].neurons[j].delta;
 			}
+		}else{
+			for(int j=0;j<layers[nOfLayers-1].nOfNeurons;j++){//para cada neurona de salida calculamos su derivada 
+				this->layers[nOfLayers-1].neurons[j].delta = 0.0;
+				for(int i=0;i<layers[nOfLayers-1].nOfNeurons;i++){//para cada neurona de salida calculamos su derivada 
+					int Findicador;
+					if(i==j){
+						Findicador = 1;
+					}else{
+						Findicador = 0;
+					}
+					this->layers[nOfLayers-1].neurons[j].delta += (target[i]/layers[nOfLayers-1].neurons[i].out)*layers[nOfLayers-1].neurons[j].out*(Findicador-layers[nOfLayers-1].neurons[i].out);//con el 2 disminuye el error
+				}
+				this->layers[nOfLayers-1].neurons[j].delta=-(this->layers[nOfLayers-1].neurons[j].delta);
+			}	
 		}
-
-	} 
-
-
-	// Ahora, recorremos las capas en orden descendente desde la anterior a la de salida
-	// Lo "complicado" era saber el delta de la capa final, ya que despues de saber esta
-	// el resto de deltas se calculan multiplicando la anterior por por el peso
-	for(int i=nOfLayers-2 ; i>=1 ; i--){
-		// Para la capa actual, recorremos sus neuronas
-		for(int j=0 ; j<layers[i].nOfNeurons+1; j++){
-			//Reseteamos la cuenta
-			sum = 0.0;
-			// Tomamos en cuenta tambien las neuronas de la capa siguiente, pues nos tomaremos datos de estas
-			for(int k=0 ; k<layers[i+1].nOfNeurons ; k++){
-				if((outputFunction!=1) && (layers[i+1].neurons[k].w!=NULL)){
-					// Esto es la sumatoria de los pesos por el delta de la capa siguiente
-					sum = sum + layers[i+1].neurons[k].w[j+1]*layers[i+1].neurons[k].delta;
+	}
+	//para las capas ocultas
+	for(int i=this->nOfLayers-2;i>0;i--){//comienzo desde la capa final hasta la capa 1
+		for(int j=0;j<layers[i].nOfNeurons+1;j++){//para todos los pesos despues añado 1 para no coger el sesgo
+			acumulador = 0.0;		
+			for(int x=0;x<layers[i+1].nOfNeurons;x++){//numero de neuronas de la capa siguiente
+				if (not(outputFunction == 1 and layers[i+1].neurons[x].w==NULL)){
+					acumulador += layers[i+1].neurons[x].w[j+1]*layers[i+1].neurons[x].delta;//almaceno el peso de la neurona siguiente con su respectivo delta
 				}
-			}
-			// Ahora el delta de la capa actual es la sumatoria anterior por la salida de esa neurona por uno menos esa misma salida
-			layers[i].neurons[j].delta = sum*layers[i].neurons[j].out*(1-layers[i].neurons[j].out);
-			//cout << "DELTAS: "<< layers[i].neurons[j].delta << endl;
+			}		
+			layers[i].neurons[j].delta = acumulador * layers[i].neurons[j].out * (1-layers[i].neurons[j].out);//calculo el delta de esta neurona con la derivada de la sigmoide con la sumatoria anterior
 		}
 	}
 }
@@ -517,44 +511,57 @@ double MultilayerPerceptron::test(Dataset* dataset, int errorFunction) {
 // ------------------------------
 // Test the network with a dataset and return the CCR
 double MultilayerPerceptron::testClassification(Dataset* dataset) {
-	// En esta funcion buscaremos calcular el CCR 
-	double ccr = 0.0;
-	double sum = 0.0; // Sumatoria de la funcion CCR Sum(Yp == Yp*)
+		double acumulador = 0.0;
+	//cout<<"tamaño"<<dataset->nOfOutputs<<endl;
+	/*double ** MatrizConfusion = new double * [dataset->nOfOutputs];
+	for(int i = 0; i < dataset->nOfOutputs; i++){
+		MatrizConfusion[i] = new double [dataset->nOfOutputs];
+	}
+	for(int i=0; i<dataset->nOfOutputs; i++){
+		for(int j=0; j<dataset->nOfOutputs; j++){
+			MatrizConfusion[i][j]=0;
+		}
+	}*/
 
-	// Recorremos el conjunto de datos
-	for(int i=0 ; i<dataset->nOfPatterns; i++){
-		// Propagamos las entradas
+
+	for(int i=0; i<dataset->nOfPatterns; i++){
 		feedInputs(dataset->inputs[i]);
 		forwardPropagate();
-		// Obtenemos las salidas de la RED
-		double* salidas = new double[layers[nOfLayers-1].nOfNeurons];
-		getOutputs(salidas);
+		
+		int maxIndEsp = 0;
+		int maxIndDes = 0;
+		double * VectorSalidas = new double [dataset->nOfOutputs];
+		this->getOutputs(VectorSalidas);
 
-		int indexMaxVal = 0;
-		int indexOut = 0;
-
-		for(int j=1 ; j<dataset->nOfOutputs ; j++){
-			// Busco el la posicion del valor mayor de la salida generada por la neurona
-			if(salidas[indexMaxVal] < salidas[j]){
-				indexMaxVal = j;
+		for(int j=1; j<dataset->nOfOutputs; j++){				
+			if(VectorSalidas[maxIndEsp]<VectorSalidas[j]){
+				maxIndEsp = j;
 			}
-			// Si el valor de la salida del DATASET para la posicion del mayor valor de la salida de la red, es menor que el que comprobamos...
-			if(dataset->outputs[i][indexMaxVal] < dataset->outputs[i][j]){
-				// ...entonces tomamos ese valor del dataset como el mayor
-				// Tomamos su posicion
-				indexOut = j;
+			if(dataset->outputs[i][maxIndDes]<dataset->outputs[i][j]){
+				maxIndDes = j;
 			}
-		}	
-
-		// Cuando ambos indices coinciden, aumentamos 
-		if(indexMaxVal == indexOut){
-			sum++;
 		}
+
+
+		//MatrizConfusion[maxIndDes][maxIndEsp]=MatrizConfusion[maxIndDes][maxIndEsp]+1;
+
+		//cout<<VectorSalidas[maxIndEsp]<<"--"<<dataset->outputs[i][maxIndDes]<<endl;
+		//cout<<maxIndEsp<<"--"<<maxIndDes<<endl;
+		if(maxIndEsp==maxIndDes){
+			
+			acumulador++;
+		}/*else{
+			cout<<"Error encontrado en -> "<<i<<endl;
+		}*/
 	}
+	/*for(int i=0; i<dataset->nOfOutputs; i++){
+		for(int j=0; j<dataset->nOfOutputs; j++){
+			cout<< MatrizConfusion[i][j]<<"   ";
+		}
+		cout<<endl;
+	}*/
 
-	ccr = 100 * (sum / (double)dataset->nOfPatterns);
-
-	return ccr;
+	return (100*acumulador/(double)dataset->nOfPatterns);
 
 }
 
