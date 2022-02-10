@@ -1,0 +1,5 @@
+/home/fran/Escritorio/Universidad/FSIV/repaso/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/repaso/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/FSIV/repaso/build/CMakeFiles/repaso3.dir
+/home/fran/Escritorio/Universidad/FSIV/repaso/build/CMakeFiles/repaso2.dir
+/home/fran/Escritorio/Universidad/FSIV/repaso/build/CMakeFiles/repaso.dir

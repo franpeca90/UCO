@@ -643,7 +643,7 @@ void MultilayerPerceptron::runBackPropagation(Dataset * trainDataset, Dataset * 
 			TrainData->inputs[j] = trainDataset->inputs[randomVector[index]];
 			TrainData->outputs[j] = trainDataset->outputs[randomVector[index]];
 			index++;
-		}cout << "Estoy aqui" << endl;
+		}
 	}else{ // En el caso de que no se use train
 		TrainData = trainDataset;
 	} /* Se ha probado a usar un dataset auxiliar igual que train para no tener que modificar los argumentos de funciones posteriores,

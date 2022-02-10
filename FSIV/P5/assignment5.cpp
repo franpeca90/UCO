@@ -112,7 +112,6 @@ try {
     box_kernel=Mat::ones(3, 3, CV_32FC1)/(9);
     Mat boost_kernel(3, 3, CV_32FC1, boost_matrix);
 
-
     //Now we apply the box kernel to the original image to calculate the Low pass image
     applyKernel(original_image, LowPass_image, box_kernel);
 

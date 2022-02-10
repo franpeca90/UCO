@@ -1,0 +1,3 @@
+/home/fran/Escritorio/Universidad/IMC/P2/la2/entrega/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/IMC/P2/la2/entrega/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/IMC/P2/la2/entrega/build/CMakeFiles/la2.dir
