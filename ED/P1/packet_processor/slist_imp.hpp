@@ -27,7 +27,8 @@ template <class T>
 SNode<T>::SNode (T const& it, SNode<T>::Ref& next)
 {
     //TODO
-
+    _item = it;
+    _next = next;
     //
 }
 
@@ -51,7 +52,7 @@ T SNode<T>::item() const
 {
     T it;
     //TODO
-
+    it = _item;
     //
     return it;
 }
@@ -61,7 +62,7 @@ bool SNode<T>::has_next() const
 {
     bool has = false;
     //TODO
-    
+    if(_next != nullptr){has=true;}
     //
     return has;
 }
@@ -71,7 +72,7 @@ typename SNode<T>::Ref SNode<T>::next() const
 {
     SNode<T>::Ref n;
     //TODO
-
+    n = _next;
     //
     return n;
 }
@@ -80,7 +81,7 @@ template <class T>
 void SNode<T>::set_item(const T& new_it)
 {
     //TODO
-
+    _item = new_it;
     //
     assert(item()==new_it);
 }
@@ -89,7 +90,7 @@ template <class T>
 void SNode<T>::set_next(SNode<T>::Ref n)
 {
     //TODO
-
+    _next = n;
     //
     assert(n == next());
 }
@@ -98,9 +99,7 @@ template<class T>
 SList<T>::SList ()
 {
     //TODO
-
-
-
+    head() = nullptr;
     //
     assert(is_empty());
 }
@@ -109,7 +108,8 @@ template<class T>
 SList<T>::~SList()
 {
     //TODO
-
+    _head = nullptr;
+    _current = nullptr;
 
 
     //
@@ -121,7 +121,7 @@ typename SNode<T>::Ref SList<T>::head() const
 {
     typename SNode<T>::Ref h;
     //TODO
-
+    h = _head;
     //
     return h;
 }
@@ -156,7 +156,7 @@ bool SList<T>::is_empty () const
 {
     bool ret_val = true;
     //TODO
-
+    if(_head==nullptr){ret_val=false;}
     //
     return ret_val;
 }
@@ -177,7 +177,7 @@ T SList<T>::front() const
     assert(!is_empty());
     T f;
     //TODO
-
+    f = _head->item();
     //
     return f;
 }
@@ -188,7 +188,7 @@ T SList<T>::current() const
     assert(! is_empty());
     T c;
     //TODO
-
+    c = _current->item();
     //
     return c;
 }
@@ -199,7 +199,7 @@ bool SList<T>::has_next() const
     assert(!is_empty());
     bool ret_val = false;
     //TODO
-
+    if(_current->has_next()==true){ret_val=true;}
     //
     return ret_val;
 }
@@ -210,7 +210,7 @@ T SList<T>::next() const
     assert(has_next());
     T ret_val = false;
     //TODO
-
+    ret_val = _current->next()->item();
     //
     return ret_val;
 }
@@ -224,7 +224,13 @@ bool SList<T>::has(T const& it) const
     //Hint: you can reuse SList::find() but remebering restore cursors to
     //assure not modify the state of the list.
     //Hint: use const_cast<> to remove constness of this.
-
+    typename SNode<T>::Ref aux = head();
+    while(aux != nullptr){
+        if(aux->item() == it){
+            found = true;
+        }
+        aux = aux->next();
+    }
     //
     return found;
 }
@@ -242,7 +248,7 @@ void SList<T>::set_current(T const& new_v)
 {
     assert(!is_empty());
     //TODO
-
+    _current->set_item(new_v);
     //
     assert(current()==new_v);
 }
@@ -256,8 +262,15 @@ void SList<T>::push_front(T const& new_it)
 #endif
     //TODO
     //Remeber to update current if current is in the head.
+    typename SNode<T>::Ref aux;
+    if(this->is_empty()){
+        aux = SNode<T>::create(new_it);
+    } else {
+        aux = SNode<T>::create(new_it, _head);
+    }
 
-
+    _head = aux;
+    _current = _head;
 
     //
     assert(front()==new_it);
@@ -293,8 +306,8 @@ void SList<T>::pop_front()
     auto old_head_next = head()->next();
 #endif
     //TODO
-
-
+    _head = _head->next();
+    _current = _head;
 
     //
     assert(is_empty() || head() == old_head_next);
@@ -336,7 +349,7 @@ void SList<T>::goto_next()
     auto old_next = next();
 #endif
     //TODO
-
+    _current = _current->next();
     //
     assert(current()==old_next);
 }
@@ -346,7 +359,7 @@ void SList<T>::goto_first()
 {
     assert(!is_empty());
     //TODO
-
+    _current = _head;
     //
     assert(current()==front());
 }
@@ -370,7 +383,7 @@ bool SList<T>::find_next(T const& it)
     assert(has_next());
     bool found = false;
     //TODO
-
+    
     //
     assert(!found || current()==it);
     assert(found || !has_next());
