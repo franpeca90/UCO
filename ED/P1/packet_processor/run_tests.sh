@@ -23,6 +23,7 @@ PASS=0
 TOTAL=0
 
 for t in ${TEST_DIR}/?? ; do
+	echo -e "\n ======================================= \n"
         TMPFILE=/tmp/ed_test_$$_${RANDOM}
 	TOTAL=$(( $TOTAL + 1 ))
         set +e

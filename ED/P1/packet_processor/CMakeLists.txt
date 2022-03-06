@@ -15,3 +15,4 @@ add_executable(test_packet_processor test_packet_processor.cpp
     stack.hpp stack_imp.hpp
     queue.hpp queue_imp.hpp)
 
+add_executable(ej main.cpp slist.hpp slist_imp.hpp)

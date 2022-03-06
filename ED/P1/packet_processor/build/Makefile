@@ -130,6 +130,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named ej
+
+# Build rule for target.
+ej: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ej
+.PHONY : ej
+
+# fast build rule for target.
+ej/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/build
+.PHONY : ej/fast
+
+#=============================================================================
 # Target rules for targets named test_packet_processor
 
 # Build rule for target.
@@ -180,6 +193,33 @@ test_slist: cmake_check_build_system
 test_slist/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_slist.dir/build.make CMakeFiles/test_slist.dir/build
 .PHONY : test_slist/fast
+
+main.o: main.cpp.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 packet_processor.o: packet_processor.cpp.o
 
@@ -324,10 +364,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... ej"
 	@echo "... test_packet_processor"
 	@echo "... test_queue"
 	@echo "... test_slist"
 	@echo "... test_stack"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 	@echo "... packet_processor.o"
 	@echo "... packet_processor.i"
 	@echo "... packet_processor.s"
