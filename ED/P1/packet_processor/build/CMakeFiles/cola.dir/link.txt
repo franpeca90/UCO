@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/cola.dir/main.cpp.o -o cola 

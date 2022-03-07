@@ -45,7 +45,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/ej.dir/DependInfo.cmake"
+  "CMakeFiles/cola.dir/DependInfo.cmake"
   "CMakeFiles/test_packet_processor.dir/DependInfo.cmake"
   "CMakeFiles/test_queue.dir/DependInfo.cmake"
   "CMakeFiles/test_stack.dir/DependInfo.cmake"

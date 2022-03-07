@@ -6,31 +6,3 @@
 
 #IncludeRegexTransform: 
 
-/home/fran/Escritorio/Universidad/ED/P1/packet_processor/main.cpp
-stdexcept
--
-iostream
--
-fstream
--
-string
--
-slist_imp.hpp
-/home/fran/Escritorio/Universidad/ED/P1/packet_processor/slist_imp.hpp
-
-/home/fran/Escritorio/Universidad/ED/P1/packet_processor/slist.hpp
-iostream
--
-memory
--
-
-/home/fran/Escritorio/Universidad/ED/P1/packet_processor/slist_imp.hpp
-slist.hpp
-/home/fran/Escritorio/Universidad/ED/P1/packet_processor/slist.hpp
-sstream
--
-stdexcept
--
-cassert
--
-

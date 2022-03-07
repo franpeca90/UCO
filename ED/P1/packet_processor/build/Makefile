@@ -130,17 +130,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ej
+# Target rules for targets named cola
 
 # Build rule for target.
-ej: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ej
-.PHONY : ej
+cola: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 cola
+.PHONY : cola
 
 # fast build rule for target.
-ej/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/build
-.PHONY : ej/fast
+cola/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cola.dir/build.make CMakeFiles/cola.dir/build
+.PHONY : cola/fast
 
 #=============================================================================
 # Target rules for targets named test_packet_processor
@@ -200,7 +200,7 @@ main.o: main.cpp.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cola.dir/build.make CMakeFiles/cola.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -209,7 +209,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cola.dir/build.make CMakeFiles/cola.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -218,7 +218,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cola.dir/build.make CMakeFiles/cola.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 packet_processor.o: packet_processor.cpp.o
@@ -364,7 +364,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... ej"
+	@echo "... cola"
 	@echo "... test_packet_processor"
 	@echo "... test_queue"
 	@echo "... test_slist"

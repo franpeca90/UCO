@@ -72,7 +72,7 @@ CMAKE_BINARY_DIR = /home/fran/Escritorio/Universidad/ED/P1/packet_processor/buil
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/ej.dir/all
+all: CMakeFiles/cola.dir/all
 all: CMakeFiles/test_packet_processor.dir/all
 all: CMakeFiles/test_queue.dir/all
 all: CMakeFiles/test_stack.dir/all
@@ -86,7 +86,7 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/ej.dir/clean
+clean: CMakeFiles/cola.dir/clean
 clean: CMakeFiles/test_packet_processor.dir/clean
 clean: CMakeFiles/test_queue.dir/clean
 clean: CMakeFiles/test_stack.dir/clean
@@ -95,31 +95,31 @@ clean: CMakeFiles/test_slist.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/ej.dir
+# Target rules for target CMakeFiles/cola.dir
 
 # All Build rule for target.
-CMakeFiles/ej.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/fran/Escritorio/Universidad/ED/P1/packet_processor/build/CMakeFiles --progress-num=1,2 "Built target ej"
-.PHONY : CMakeFiles/ej.dir/all
+CMakeFiles/cola.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cola.dir/build.make CMakeFiles/cola.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cola.dir/build.make CMakeFiles/cola.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/fran/Escritorio/Universidad/ED/P1/packet_processor/build/CMakeFiles --progress-num=1,2 "Built target cola"
+.PHONY : CMakeFiles/cola.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/ej.dir/rule: cmake_check_build_system
+CMakeFiles/cola.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/fran/Escritorio/Universidad/ED/P1/packet_processor/build/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/ej.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/cola.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/fran/Escritorio/Universidad/ED/P1/packet_processor/build/CMakeFiles 0
-.PHONY : CMakeFiles/ej.dir/rule
+.PHONY : CMakeFiles/cola.dir/rule
 
 # Convenience name for target.
-ej: CMakeFiles/ej.dir/rule
+cola: CMakeFiles/cola.dir/rule
 
-.PHONY : ej
+.PHONY : cola
 
 # clean rule for target.
-CMakeFiles/ej.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ej.dir/build.make CMakeFiles/ej.dir/clean
-.PHONY : CMakeFiles/ej.dir/clean
+CMakeFiles/cola.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cola.dir/build.make CMakeFiles/cola.dir/clean
+.PHONY : CMakeFiles/cola.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/test_packet_processor.dir

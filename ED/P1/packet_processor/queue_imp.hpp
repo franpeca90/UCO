@@ -15,7 +15,8 @@ template<class T>
 Queue<T>::Queue ()
 {
     //TODO    
-
+    input_ = Stack<T>::create();
+    output_ = Stack<T>::create();
     //
     assert(is_empty());
 }
@@ -26,7 +27,11 @@ Queue<T>::is_empty () const
 {
     bool ret_val = true;
     //TODO
-
+    bool aux1 = input_->is_empty();
+    bool aux2 = output_->is_empty();
+    if(aux1==false or aux2==false){
+        ret_val=false;
+    }
     //
     return ret_val;
 }
@@ -37,7 +42,9 @@ Queue<T>::size () const
 {
     size_t ret_val = 0;
     //TODO
-
+    if(this->is_empty()!=true){
+        ret_val = input_->size() + output_->size();
+    }
     //
     return ret_val;
 }
@@ -49,7 +56,10 @@ Queue<T>::front() const
     assert(! is_empty());
     T ret_val;
     //TODO
-
+    if(output_->is_empty()){
+        const_cast<Queue<T>*>(this)->flush_input_to_output();
+    }
+    ret_val = output_->top();
     //
     return ret_val;
 }
@@ -60,6 +70,11 @@ T Queue<T>::back() const
     assert(! is_empty());
     T ret_val;
     //TODO
+    if(!input_->is_empty()){
+        ret_val = input_->top();
+    } else {
+        ret_val = back_;
+    }
 
     //
     return ret_val;
@@ -75,7 +90,7 @@ Queue<T>::enque(const T& new_it)
     //TODO
     //Remenber we enque into the input stack.
     //Hint: maybe you need to update the back item.
-
+    input_->push(new_it);
     //
     assert(back()==new_it);
     assert(size()==(old_size+1));
@@ -92,6 +107,11 @@ Queue<T>::deque()
     //TODO
     //Remenber we deque from the output stack and if the output stack is empty
     //we need flush the input stack into the output stack first.
+    if(output_->is_empty()){
+        flush_input_to_output();
+    }
+
+    output_->pop();
 
     //
     assert(size()==(old_size-1));
@@ -109,7 +129,13 @@ Queue<T>::flush_input_to_output()
     //TODO
     //Remenber: the first item pushed into output is
     // the new back() of the queue.
-
+    back_=back();
+    T aux = old_back;
+    while(!input_->is_empty()){
+        output_->push(back());
+        input_->pop();
+    }
     //
     assert(old_back == back());
+
 }
