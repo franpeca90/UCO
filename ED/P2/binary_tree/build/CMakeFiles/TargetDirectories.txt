@@ -1,0 +1,4 @@
+/home/fran/Escritorio/Universidad/ED/P2/binary_tree/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/ED/P2/binary_tree/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/ED/P2/binary_tree/build/CMakeFiles/test_btree.dir
+/home/fran/Escritorio/Universidad/ED/P2/binary_tree/build/CMakeFiles/test_btree_node.dir
