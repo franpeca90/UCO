@@ -71,7 +71,10 @@ static struct {
 	      int token;
 	      } keyword[] = { /* Palabras pera lectura/escritura */
 	                    {"escribir", PRINT},
+						{"escribir_cadena",  PRINTSTRING},
 	                    {"leer",  READ},
+						{"leer_cadena",  READSTRING},
+
 						
 						/* Para los IFs */
 						{"si",	  IF},   	// NEW in example 17

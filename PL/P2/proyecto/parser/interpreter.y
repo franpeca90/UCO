@@ -169,8 +169,9 @@ extern lp::AST *root; //!< External root of the abstract syntax tree AST
 %token SEMICOLON
 /*******************************************/
 
-/* NEW in example 17: IF, ELSE, WHILE */
-%token PRINT READ IF ELSE WHILE THEN ENDIF DO ENDWHILE REPEAT UNTIL FOR FROM STEP ENDFOR SWITCH VALUE DEFAULT ENDSWITCH
+/* NEW in example 17: IF, ELSE, WHILE */  
+/* Se han añadido nuevos token, dado que tenemos nuevas palabras reservadas en el init.hpp*/
+%token PRINT READ IF ELSE WHILE THEN ENDIF DO ENDWHILE REPEAT UNTIL FOR FROM STEP ENDFOR SWITCH VALUE DEFAULT ENDSWITCH PRINTSTRING READSTRING
 
 /* NEW in example 17 */
 %token LETFCURLYBRACKET RIGHTCURLYBRACKET
@@ -210,8 +211,11 @@ extern lp::AST *root; //!< External root of the abstract syntax tree AST
 /* MODIFIED in example 3 */
 %left PLUS MINUS 
 
+/* Nuevo token para cadenas, asociatividad por la izquierda */
+%left CONCATENATION
+
 /* MODIFIED in example 5 */
-%left MULTIPLICATION DIVISION MODULO
+%left MULTIPLICATION DIVISION MODULO ENTIRE_DIVISON
 
 %left LPAREN RPAREN
 

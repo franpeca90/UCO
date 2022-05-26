@@ -56,12 +56,12 @@ extern int lineNumber; //!< External line counter
 DIGIT  [0-9] 
 
 LETTER [a-zA-Z]
+/* Para reconocer numeros normales y decimales */
+NUMBER1 {DIGIT}+(\.{DIGIT}+)? 
+/* Para reconocer numero en notacion cientifica */
+NUMBER2 {DIGIT}(\.{DIGIT}+)?(E[+-]?{DIGIT}+)? 
 
-NUMBER1 {DIGIT}+\.?
-
-NUMBER2 {DIGIT}*\.{DIGIT}+
-
-IDENTIFIER  {LETTER}({LETTER}|{DIGIT})*
+IDENTIFIER  {LETTER}({LETTER}+|{DIGIT}+|(\_{LETTER})+|(\_{DIGIT})+)*
 
 /* NEW in example 3 */
 /* STATE  */
@@ -151,6 +151,7 @@ IDENTIFIER  {LETTER}({LETTER}|{DIGIT})*
 
 "*"	    { return MULTIPLICATION; } 	/* NEW in example 3 */
 "/"     { return DIVISION; } 		/* NEW in example 3 */
+"//"	{ return ENTIRE_DIVISON; }
 
 "("     { return LPAREN; } 			/* NEW in example 3 */
 ")"	    { return RPAREN; } 			/* NEW in example 3 */
@@ -159,14 +160,14 @@ IDENTIFIER  {LETTER}({LETTER}|{DIGIT})*
 
 "%"     { return MODULO; }			/* NEW in example 5 */
 
-"^"	    { return POWER; }			/* NEW in example 5 */
+"**"	{ return POWER; }			/* NEW in example 5 */
 
-"=" 	{ return ASSIGNMENT; }		/* NEW in example 7 */
+":=" 	{ return ASSIGNMENT; }		/* NEW in example 7 */
 
 
 "=="	{ return EQUAL; }			/* NEW in example 15 */
 
-"!="	{ return NOT_EQUAL; }		/* NEW in example 15 */
+"<>"	{ return NOT_EQUAL; }		/* NEW in example 15 */
 
 ">="	{ return GREATER_OR_EQUAL; }/* NEW in example 15 */
 
@@ -180,11 +181,13 @@ IDENTIFIER  {LETTER}({LETTER}|{DIGIT})*
 
 "||"	{ return OR; }				/* NEW in example 15 */
 
-"&&"	{ return AND; }				/* NEW in example 15 */
+"y"		{ return AND; }				/* NEW in example 15 */
 
 "{"		{ return LETFCURLYBRACKET; } 	/* NEW in example 17 */
 
 "}"		{ return RIGHTCURLYBRACKET; }	/* NEW in example 17 */
+
+"||"	{ return CONCATENATION; }
 
 
 
