@@ -1,0 +1,4 @@
+/home/fran/Escritorio/Universidad/ED/P2/P2 Manu/build/CMakeFiles/rebuild_cache.dir
+/home/fran/Escritorio/Universidad/ED/P2/P2 Manu/build/CMakeFiles/edit_cache.dir
+/home/fran/Escritorio/Universidad/ED/P2/P2 Manu/build/CMakeFiles/test_btree.dir
+/home/fran/Escritorio/Universidad/ED/P2/P2 Manu/build/CMakeFiles/test_btree_node.dir
