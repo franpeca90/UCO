@@ -151,12 +151,12 @@ extern lp::AST *root; //!< External root of the abstract syntax tree AST
 %type <expNode> exp cond 
 
 /* New in example 14 */
-%type <parameters> listOfExp  restOfListOfExp
+%type <parameters> listOfExp restOfListOfExp
 
 %type <stmts> stmtlist
 
-// New in example 17: if, while, block
-%type <st> stmt asgn print read if while block
+// New in example 17: if, while, block  // Esto tambien son simbolos no terminales, el clear entra dentro de ellos tambien, es una nueva regla que se llama
+%type <st> stmt asgn print read if while block clear placecursor
 
 %type <prog> program
 
@@ -171,7 +171,7 @@ extern lp::AST *root; //!< External root of the abstract syntax tree AST
 
 /* NEW in example 17: IF, ELSE, WHILE */  
 /* Se han añadido nuevos token, dado que tenemos nuevas palabras reservadas en el init.hpp*/
-%token PRINT READ IF ELSE WHILE THEN ENDIF DO ENDWHILE REPEAT UNTIL FOR FROM STEP ENDFOR SWITCH VALUE DEFAULT ENDSWITCH PRINTSTRING READSTRING
+%token PRINT READ IF ELSE WHILE THEN ENDIF DO ENDWHILE REPEAT UNTIL FOR FROM STEP ENDFOR SWITCH VALUE DEFAULT ENDSWITCH PRINTSTRING READSTRING CLEAR PLACECURSOR
 
 /* NEW in example 17 */
 %token LETFCURLYBRACKET RIGHTCURLYBRACKET
@@ -291,7 +291,7 @@ stmt: SEMICOLON  /* Empty statement: ";" */
 	  }
 	| asgn  SEMICOLON
 	  {
-		// Default action
+    	// Default action
 		// $$ = $1;
 	  }
 	| print SEMICOLON
@@ -318,6 +318,16 @@ stmt: SEMICOLON  /* Empty statement: ";" */
 	 }
 	/*  NEW in example 17 */
 	| block 
+	 {
+		// Default action
+		// $$ = $1;
+	 }
+	| clear SEMICOLON 
+	 {
+		// Default action
+		// $$ = $1;
+	 }
+	| placecursor SEMICOLON 
 	 {
 		// Default action
 		// $$ = $1;
@@ -425,6 +435,17 @@ read:  READ LPAREN VARIABLE RPAREN
 ;
 
 
+clear: CLEAR
+		{
+			$$ = new lp::clearStmt();
+		}
+
+placecursor: PLACECURSOR LPAREN exp COMMA exp RPAREN
+		{
+			$$ = new lp::placeStmt($3, $5);
+		}
+
+
 exp:	NUMBER 
 		{ 
 			// Create a new number node
@@ -454,6 +475,11 @@ exp:	NUMBER
 		  // Create a new division node	
 		  $$ = new lp::DivisionNode($1, $3);
 	   }
+
+	|   exp ENTIRE_DIVISON exp 
+	 	{
+ 			$$ = new lp::entireDivisonOperatorNode($1,$3);
+		}
 
 	| 	LPAREN exp RPAREN
        	{ 

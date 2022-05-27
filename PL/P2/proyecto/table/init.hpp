@@ -105,7 +105,15 @@ static struct {
 						{"defecto", DEFAULT},
 						{"fin_segun", ENDSWITCH},
 
-	                    {"",      0}
+						/* Operadores logicos */
+						{"y", AND},
+						{"o", OR},
+						{"no", NOT},
+
+						/* Comandos de pantalla */
+						{"borrar_pantalla", CLEAR},
+						{"lugar", PLACECURSOR},
+						{"",      0}
 	                   };
 
 

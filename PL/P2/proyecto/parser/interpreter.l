@@ -63,6 +63,9 @@ NUMBER2 {DIGIT}(\.{DIGIT}+)?(E[+-]?{DIGIT}+)?
 
 IDENTIFIER  {LETTER}({LETTER}+|{DIGIT}+|(\_{LETTER})+|(\_{DIGIT})+)*
 
+/* Comentario, todo lo que haya despues del simbolo '#', hasta que termine la linea */
+INLINE #(.)*$ 
+
 /* NEW in example 3 */
 /* STATE  */
 %x ERROR
@@ -146,6 +149,8 @@ IDENTIFIER  {LETTER}({LETTER}+|{DIGIT}+|(\_{LETTER})+|(\_{DIGIT})+)*
 							}
                      }
 
+{INLINE} { return SEMICOLON; } 
+
 "-"		{ return MINUS;  } 			/* NEW in example 3 */
 "+"		{ return PLUS;   } 			/* NEW in example 3 */
 
@@ -177,18 +182,11 @@ IDENTIFIER  {LETTER}({LETTER}+|{DIGIT}+|(\_{LETTER})+|(\_{DIGIT})+)*
 
 "<"		{ return LESS_THAN; }		/* NEW in example 15 */
 
-"!"		{ return NOT; }				/* NEW in example 15 */
-
-"||"	{ return OR; }				/* NEW in example 15 */
-
-"y"		{ return AND; }				/* NEW in example 15 */
-
 "{"		{ return LETFCURLYBRACKET; } 	/* NEW in example 17 */
 
 "}"		{ return RIGHTCURLYBRACKET; }	/* NEW in example 17 */
 
 "||"	{ return CONCATENATION; }
-
 
 
 ^# { /* The interpreter finishes when the symbol # is written at the beginning of the line */
