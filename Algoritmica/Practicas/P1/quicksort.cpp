@@ -21,26 +21,26 @@ void ordenacionQuickSort(){
 
     double coeficienteDeterminacion; // Coeficiente que nos dice que tan bien aproxima nuestro modelo
 
-    vector<double> tiemposReales // Tiempo medio que ha tardado en ordenar un vector de tamaño N. La posicion 0 corresponde con el vector de tamaño minimo
-    vector<double> tiemposEstimados // Tiempo dado por la curva a crear, nos dice de forma estimada el tiempo que se tarda en ordenar un vector de tamaño N
+    vector<double> tiemposReales; // Tiempo medio que ha tardado en ordenar un vector de tamaño N. La posicion 0 corresponde con el vector de tamaño minimo
+    vector<double> tiemposEstimados; // Tiempo dado por la curva a crear, nos dice de forma estimada el tiempo que se tarda en ordenar un vector de tamaño N
 
-    vector<double> numeroElementos // Indica el numero de elementos que posee cada vector. La posicion i corresponde con el tiempo i del vector de tiemposReales
+    vector<double> numeroElementos; // Indica el numero de elementos que posee cada vector. La posicion i corresponde con el tiempo i del vector de tiemposReales
     
-    vector<double> a // Vector con los coeficientes de la curva a ajustar
+    vector<double> a; // Vector con los coeficientes de la curva a ajustar
 
     // Calculamos los tiempos reales en ordenar vectors de diferentes tamaños
-    tiemposOrdenacionQuickSort(nMin, nMax, repeticiones, incremento, *tiemposReales, *numeroElementos);
+    tiemposOrdenacionQuickSort(nMin, nMax, repeticiones, incremento, tiemposReales, numeroElementos);
 
     // Almacenamos los valores en un fichero
 
     // Ajustamos una curva logaritmica
-    ajusteNlogN(*numeroElementos, *tiemposReales, *a);
+    ajusteNlogN(numeroElementos, tiemposReales, a);
 
     // Calculamos los tiempos estimados usando la curva
-    calcularTiemposEstimadosNlogN(*numeroElementos, *a, *tiemposEstimados);
+    calcularTiemposEstimadosNlogN(numeroElementos, a, tiemposEstimados);
 
     // Calculamos el coeficiente de determinacion para saber cuan bien se ajusta nuestro modelo a la realidad
-    coeficienteDeterminacion = calcularCoeficienteDeterminacion(*tiemposReales, *tiemposEstimados);
+    coeficienteDeterminacion = calcularCoeficienteDeterminacion(tiemposReales, tiemposEstimados);
 
     // Almacenamos los resultados finales en un fichero
 
