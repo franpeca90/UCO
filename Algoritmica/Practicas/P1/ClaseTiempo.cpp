@@ -81,7 +81,7 @@ Data Type: struct timespec
       return stopT-startT;
     }
   };
-
+/*
 int main()
 {
 	Clock time;
@@ -96,10 +96,11 @@ int main()
 		a++;
 		b++;
 	}
-	if (time.isStarted())
-	{
+	//if (time.isStarted())
+	//{
 		time.stop();
-		std::cout << "Han pasado " << time.elapsed() << "microsegundos \n";
-	}
+		std::cout << "Han pasado " << time.elapsed() << " microsegundos \n";
+	//}
 	return 0;
 }
+*/
