@@ -7,27 +7,28 @@
 using namespace std; 
 
 int main() {
-
-    cout << "\nIntroduce el número de la opción que deseas realizar" << endl;
-    cout << "   [1] Quick sort \n   [2] Determinante iterativo \n   [3] Determinante recursivo\n\n";
-    
     int opcion;
+    
+    cout << "\n   [1] Quick sort \n   [2] Determinante iterativo \n   [3] Determinante recursivo\n";
+    
+    cout << "\nIntroduce el número de la opción que deseas realizar: ";
     cin >> opcion;
 
     switch (opcion){
         case 1:
+            cout << "\nSe ha seleccionado el metodo de ordenamiento burbuja\n" << endl;
             ordenacionQuickSort();
-            cout << "Quicksort" << endl;
         break;
     //---------
         case 2:
+            cout << "\nSe ha seleccionado el metodo del determinante iterativo\n" << endl;
             determinanteIterativo();
-            cout << "Determinante iterativo" << endl;
+
         break;
     //---------
         case 3:
+            cout << "\nSe ha seleccionado el metodo del determinante recursivo\n" << endl;
             determinanteRecursivo();
-            cout << "Determinante recursivo" << endl;
         break;
     //---------
         default: 

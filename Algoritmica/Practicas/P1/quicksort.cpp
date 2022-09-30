@@ -4,6 +4,7 @@
 #include "quicksort.hpp"
 #include "ClaseTiempo.cpp"
 #include "sistemaEcuaciones.hpp"
+#include "codigoComun.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -26,6 +27,11 @@ void ordenacionQuickSort(){
     int nMin, nMax; // Numero minimo y maximo de elementos que tendra el vector
     int repeticiones; // Cuantas veces se realizaran las pruebas para un mismo tamaño de vector
     int incremento; // Incremento del tamaño del vector, tras X repeticiones, se incrementara
+    
+    bool flag = true; // Nos permitira salir del bucle que realiza predicciones de tiempos de tamaño introducido por el usuario
+    int tam; // Tamaño del vector a predecir su tiempo de ordenacion
+    double tiempo_aproximado; // Tiempo predecido para un tamaño de vector dado por el usuario usando nuestro modelo
+    double years, days, minutes, seconds, aux;
 
     double coeficienteDeterminacion; // Coeficiente que nos dice que tan bien aproxima nuestro modelo
 
@@ -39,19 +45,19 @@ void ordenacionQuickSort(){
     fstream file; // Fichero donde almacenaremos los datos
 
     // Obtenemos los valores que quiera el usuario
-    cout << "Introduce el tamaño minimo del vector" << endl;
+    cout << "Introduce el tamaño minimo del vector: ";
     cin >> nMin;
 
-    cout << "Introduce el tamaño máximo del vector" << endl;
+    cout << "Introduce el tamaño máximo del vector: ";
     cin >> nMax;
 
-    cout << "Introduce el incremento del valor de los vectores" << endl;
+    cout << "Introduce el incremento del valor de los vectores: ";
     cin >> incremento;
 
-    cout << "Introduce el numero de veces que se repetira la ordenacion" << endl;
+    cout << "Introduce el numero de veces que se repetira la ordenacion: ";
     cin >> repeticiones;
 
-    // Calculamos los tiempos reales en ordenar vectors de diferentes tamaños
+    // Calculamos los tiempos reales en ordenar vectores de diferentes tamaños
     tiemposOrdenacionQuickSort(nMin, nMax, repeticiones, incremento, tiemposReales, numeroElementos);
 
     // Almacenamos los valores en un fichero
@@ -63,7 +69,6 @@ void ordenacionQuickSort(){
 
     // Ajustamos una curva logaritmica, esto es, obtener los coeficientes de la ecuacion logistica
     ajusteNlogN(numeroElementos, tiemposReales, a);
-    cout << "Los coeficientes de la regresion logisitca son: " << a[0] << " y " << a[1] << endl;
 
     // Calculamos los tiempos estimados usando la curva
     calcularTiemposEstimadosNlogN(numeroElementos, a, tiemposEstimados);
@@ -74,13 +79,43 @@ void ordenacionQuickSort(){
     // Almacenamos los resultados finales en un fichero
     file.open("tiempoFinales.txt", ios_base::out);
     for(int i = 0 ; i<tiemposEstimados.size() ; i++){
-        file << tiemposEstimados[i] << endl;  
+        file << numeroElementos[i] << " " << tiemposReales[i] << " " << tiemposEstimados[i] << endl;  
     }
     file.close();
 
+    // Mostramos los resultados
+    cout << "\nLa curva de ajuste es:   " << a[0] << " + " << a[1] << " * n * log(n)" << endl;
+    cout << "El coeficiente de determinacion es:    " << coeficienteDeterminacion << endl;
+    
     // Representamos graficamente con gnuplot
 
     // Permitimos al usuario aproximar tiempos para un tamaño introducido por el mismo
+    while(flag){
+        cout << "\nIntroduce un tamaño de ejemplar para predecir su tiempo. Si no quieres predecir, introduce 0: ";
+        cin >> tam;
+
+        if(tam!=0){
+            // Calculamos el tiempo aproximado para el tamaño dado por el usuario
+            tiempo_aproximado = calcularTiempoEstimadoNlogN(tam, a); // NOTA: segun el guion, los resultados estan en microsegundos
+
+            years = tiempo_aproximado * 3.168808781402895 * pow (10, -14); // Paso de milisegundos a años
+
+            // Esta funcion introduce en el segundo parametro la parte entera y devuelve la parte decimal, correspondiente al primer argumento pasado
+            days = modf(years, &years); // La parte entera seran los años, la decimal los dias
+            minutes = modf(days*360, &days); // Le paso los dias correspondientes a la parte decimal de los años
+            seconds = modf(minutes*1440, &minutes); // Paso de dias a minutos
+            seconds = seconds * 60; // Finalmente paso de minutos a segundos
+
+            // Mostramos los resultados
+            cout << "\nPara ordenar un vector de " << tam << " elementos se tardaria aproximadamente: "
+                 << years << " años " 
+                 << days << " dias "
+                 << minutes << " minutos "
+                 << seconds << " segundos " << endl;
+        } else {
+            flag = false;
+        }
+    }
 }
 
 
@@ -93,19 +128,6 @@ void rellenarVector(vector<int> &v){
 
     for(int i=0 ; i<v.size() ; i++){ // Generamos tantos numeros como elementos del vector
         v[i] = rand()%9999999; // Genera numeros entre 0 y 9999999
-    }
-}
-
-
-/*!		
-	\brief Comprueba si el vector pasado como parametro esta ordenado o no 
-	\param v: Vector a comprobar
-*/
-bool estaOrdenado(const vector<int> &v){
-    if (is_sorted(v.begin(), v.end())){ // Comprobamos si esta ordenado
-        return true;
-    } else {
-        return false;
     }
 }
 
@@ -209,42 +231,16 @@ void ajusteNlogN(const vector <double> &numeroElementos, const vector <double> &
 
 
 /*!		
-	\brief Permite realizar el sumatorio de dos vectores de entrada con su correspondiente exponente 
-	\param n: Vector que contiene los elementos de la sumatoria, multiplican a los elementos del vector t
-	\param t: Vector que contiene los otros elementos de la sumatoria, multiplican a los elementos del vector n
-    \param expN: Coeficiente de los elementos de n. 0 en caso de que no se quiera usar estos elementos
-    \param expT: Coeficiente de los elementos de t. 0 en caso de que no se quiera usar estos elementos 
-*/
-double sumatorio(const vector<double> &n,const vector <double> &t, int expN, int expT){
-    double sumatoria = 0.0;
-
-    for(int i=0 ; i<n.size() ; i++){ // Los vectores n y t tienen el mismo numero de elementos, por eso comparten indice
-        sumatoria = sumatoria + (pow(n[i], expN) * pow(t[i], expT));
-    }
-
-    return sumatoria;
-}
-
-
-/*!		
 	\brief Se calculan los tiempos estimados usando una curva logaritmica para diferentes tamaños de vector 
-	\param numeroElementos: Tamaños de los vectores usados para calcular sus tiempos reales
+	\param numeroElementos: Tamaños de los vectores usados para calcular sus tiempos
     \param a: Coeficientes de la curva
     \param tiemposEstimados: Tiempos estimados, resultado de aplicar la curva a diferentes tamaños de vector
 */
 void calcularTiemposEstimadosNlogN(const vector<double> &numeroElementos, const vector<double> &a, vector<double> &tiemposEstimados){
-
-}
-
-
-/*!		
-	\brief Coeficiente que indica cuan bien aproxima nuestro modelo a los resultados
-	\param tiemposReales: Tiempos medios reales que se tardaron en ordenar los vectores
-    \param tiemposEstimados: Tiempos estimados, resultado de aplicar la curva a diferentes tamaños de vector
-*/
-double calcularCoeficienteDeterminacion(const vector<double> &tiemposReales, const vector<double> &tiemposEstimados){
-
-    return 0.0;
+    // La ecuacion a aplicar es: a + b*n*log(n)
+    for(int i = 0 ; i<numeroElementos.size() ; i++){
+        tiemposEstimados.push_back(a[0] + a[1] * numeroElementos[i] * log(numeroElementos[i]));
+    }
 }
 
 
@@ -254,6 +250,5 @@ double calcularCoeficienteDeterminacion(const vector<double> &tiemposReales, con
     \param a: Coeficientes de la curva
 */
 double calcularTiempoEstimadoNlogN(const double &n, vector<double> &a){
-    
-    return 0.0;
+    return a[0] + a[1] * n * log(n);;
 }
