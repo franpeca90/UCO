@@ -60,8 +60,9 @@ double calcularCoeficienteDeterminacion(const vector<double> &tiemposReales, con
     for(int i = 0 ; i<tiemposReales.size() ; i++){
         sum_X = sum_X + tiemposEstimados[i];
         sum_Y = sum_Y + tiemposReales[i];
+
     }
-    
+
     media_X = sum_X / tiemposEstimados.size(); // Realmente, tienen el mismo tamaño
     media_Y = sum_Y / tiemposReales.size();
     
@@ -77,7 +78,11 @@ double calcularCoeficienteDeterminacion(const vector<double> &tiemposReales, con
     return var_X / var_Y; // Devolvemos el coeficiente
 }
 
-
+/*!		
+	\brief Rellena una matriz con numeros aleatorios entre 0.95 y 1.05  o de forma manual
+	\param m Matriz a rellenar
+    \param opcion: Indica de que forma va a ser rellenada la matriz
+*/
 void rellenarMatriz(vector<vector<double>> &m, int opcion){
     srand(time(NULL)); // Inicio de la semilla de generacion de numeros aleatorios
     double valor; // Variable auxiliar para almacenar los valores de la matrices en la misma
@@ -108,3 +113,5 @@ void rellenarMatriz(vector<vector<double>> &m, int opcion){
         cout << "Error, no has introducido una opcion valida" << endl;
     } 
 }
+
+

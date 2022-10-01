@@ -107,7 +107,7 @@ void ordenacionQuickSort(){
             seconds = seconds * 60; // Finalmente paso de minutos a segundos
 
             // Mostramos los resultados
-            cout << "\nPara ordenar un vector de " << tam << " elementos se tardaria aproximadamente: "
+            cout << "\n\n--> Para ordenar un vector de " << tam << " elementos se tardaria aproximadamente: "
                  << years << " años " 
                  << days << " dias "
                  << minutes << " minutos "
