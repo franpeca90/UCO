@@ -77,7 +77,7 @@ void ordenacionQuickSort(){
     coeficienteDeterminacion = calcularCoeficienteDeterminacion(tiemposReales, tiemposEstimados);
 
     // Almacenamos los resultados finales en un fichero
-    file.open("tiempoFinales.txt", ios_base::out);
+    file.open("datosFinales.txt", ios_base::out);
     for(int i = 0 ; i<tiemposEstimados.size() ; i++){
         file << numeroElementos[i] << " " << tiemposReales[i] << " " << tiemposEstimados[i] << endl;  
     }
@@ -107,7 +107,7 @@ void ordenacionQuickSort(){
             seconds = seconds * 60; // Finalmente paso de minutos a segundos
 
             // Mostramos los resultados
-            cout << "\n\n--> Para ordenar un vector de " << tam << " elementos se tardaria aproximadamente: "
+            cout << "\n  --> Para ordenar un vector de " << tam << " elementos se tardaria aproximadamente: "
                  << years << " años " 
                  << days << " dias "
                  << minutes << " minutos "

@@ -78,6 +78,7 @@ double calcularCoeficienteDeterminacion(const vector<double> &tiemposReales, con
     return var_X / var_Y; // Devolvemos el coeficiente
 }
 
+
 /*!		
 	\brief Rellena una matriz con numeros aleatorios entre 0.95 y 1.05  o de forma manual
 	\param m Matriz a rellenar

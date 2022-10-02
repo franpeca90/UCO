@@ -73,7 +73,7 @@ void determinanteIterativo() {
     coeficienteDeterminacion = calcularCoeficienteDeterminacion(tiemposReales, tiemposEstimados);
 
     // Almacenamos los resultados finales en un fichero
-    file.open("tiempoFinales.txt", ios_base::out);
+    file.open("datosFinales.txt", ios_base::out);
     for(int i = 0 ; i<tiemposEstimados.size() ; i++){
         file << numeroElementos[i] << " " << tiemposReales[i] << " " << tiemposEstimados[i] << endl;  
     }
@@ -103,7 +103,7 @@ void determinanteIterativo() {
             seconds = seconds * 60; // Finalmente paso de minutos a segundos
 
             // Mostramos los resultados
-            cout << "\n--> Para ordenar un vector de " << tam << " elementos se tardaria aproximadamente: "
+            cout << "\n  --> Para una matriz de orden " << tam << " se tardaria aproximadamente: "
                  << years << " años " 
                  << days << " dias "
                  << minutes << " minutos "
@@ -116,13 +116,12 @@ void determinanteIterativo() {
 
 
 /*!		
-	\brief Calcula el tiempo medio real que se tarda en ordenar un vector por quicksort, para diferentes tamaños de vector 
-	\param nMin: Tamaño minimo que tendra el vector
-	\param nMax: Tamaño maximo que tenndra el vector
-
-    \param incremento: Aumento de tamaño de vector tras realizar pruebas
-    \param tiemposReales: Tiempos medios reales para cada tamaño de vector
-    \param numeroElementos: Diferentes tamaños obtenidos
+	\brief Calcula el tiempo de realizar el determinante de una matriz de forma iterativa para un tamaño de matriz dado
+	\param nMin: Tamaño minimo de la matriz
+	\param nMax: Tamaño maximo de la matriz
+    \param incremento: Aumento de tamaño de la matriz tras realizar una prueba
+    \param tiemposReales: Tiempos reales para cada tamaño de matriz
+    \param numeroElementos: Son los diferentes tamaños obtenidos
 */
 void tiemposOrdenacionDeterminanteIterativo(int nMin, int nMax, int incremento, std::vector<double> &tiemposReales, std::vector<double> &numeroElementos){
 
