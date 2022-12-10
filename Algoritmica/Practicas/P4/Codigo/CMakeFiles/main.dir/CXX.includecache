@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P4/Codigo/ClaseTiempo.cpp
+cassert
+-
+ctime
+-
+cstdio
+-
+cstring
+-
+iostream
+-
+stdint.h
+-
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P4/Codigo/funcionesPrimero.cpp
+iostream
+-
+serietemporal.hpp
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P4/Codigo/serietemporal.hpp
+ClaseTiempo.cpp
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P4/Codigo/ClaseTiempo.cpp
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P4/Codigo/punto.hpp
+math.h
+-
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P4/Codigo/serietemporal.hpp
+vector
+-
+algorithm
+-
+punto.hpp
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P4/Codigo/punto.hpp
+
