@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/main.dir/main.cpp.o CMakeFiles/main.dir/funcionesPrimero.cpp.o CMakeFiles/main.dir/funcionesSegundo.cpp.o  -o main 

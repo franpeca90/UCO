@@ -7,5 +7,5 @@ set output "grafico.eps"
 set key right bottom
 set xlabel "Tiempo"
 set ylabel "Valor"
-plot 'BBVA_segmentado.txt' using 1:2 t "Serie segmentada" w l
+plot 'BBVA.txt' using 1:2 t "Serie real" w l, 'BBVA_segmentado.txt' using 1:2 t "Serie segmentada" w l
 _end_
