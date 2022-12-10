@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/main.dir/main.cpp.o CMakeFiles/main.dir/backtracking.cpp.o CMakeFiles/main.dir/lasVegas.cpp.o CMakeFiles/main.dir/poda.cpp.o CMakeFiles/main.dir/montecarlo.cpp.o CMakeFiles/main.dir/funcionesComunes.cpp.o CMakeFiles/main.dir/ClaseTiempo.cpp.o  -o main 
