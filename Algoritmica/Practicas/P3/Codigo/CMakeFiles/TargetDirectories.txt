@@ -1,0 +1,3 @@
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/CMakeFiles/rebuild_cache.dir
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/CMakeFiles/edit_cache.dir
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/CMakeFiles/main.dir

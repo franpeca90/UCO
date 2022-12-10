@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/funcionesPrimero.hpp
+serietemporal.hpp
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/serietemporal.hpp
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/main.cpp
+funcionesPrimero.hpp
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/funcionesPrimero.hpp
+iostream
+-
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/punto.hpp
+math.h
+-
+
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/serietemporal.hpp
+vector
+-
+algorithm
+-
+punto.hpp
+/mnt/d/Documentos/Universidad/Algoritmica/Practicas/P3/Codigo/punto.hpp
+
