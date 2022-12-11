@@ -26,3 +26,11 @@ void mostrarSoluciones(vector<vector<int>> matrizSoluciones){
 		cout << "\n";
 	}
 }
+
+
+void mostrarSolucion(vector<int> vectorSolucion){
+
+	for(int i=0 ; i<vectorSolucion.size() ; i++){
+		cout << vectorSolucion[i] << " ";
+	}
+}

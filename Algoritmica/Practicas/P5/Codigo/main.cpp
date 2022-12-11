@@ -1,9 +1,9 @@
-#include <iostream>
-
 #include "backtracking.hpp"
 #include "lasVegas.hpp"
 #include "poda.hpp"
 #include "montecarlo.hpp"
+
+#include <iostream>
 
 using namespace std; 
 

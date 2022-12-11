@@ -2,21 +2,20 @@
 #include "funcionesComunes.hpp"
 #include "ClaseTiempo.cpp"
 
-#include <iostream>
-#include <vector>
+//#include <iostream> No necesarios, ya incluidos
+//#include <vector>
 
 using namespace std;
 
 void backtracking(bool opcion){
 
-	int n; // Numero de reinas
-	cout << "Introduce el numero de reinas: ";
-	cin >> n;
-
 	double tiempo;
-
+	int n; // Numero de reinas
 	// Declaracion de las EDs para mostrar los datos
 	vector<vector<int>> matrizSoluciones;
+	
+	cout << "Introduce el numero de reinas: ";
+	cin >> n;
 
 	// Funciones backtracking
 	if(opcion == false) { // Si estamos en el caso de backtracking con varia soluciones

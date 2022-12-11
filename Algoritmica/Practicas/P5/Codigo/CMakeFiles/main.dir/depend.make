@@ -10,6 +10,8 @@ CMakeFiles/main.dir/backtracking.cpp.o: funcionesComunes.hpp
 
 CMakeFiles/main.dir/funcionesComunes.cpp.o: funcionesComunes.cpp
 
+CMakeFiles/main.dir/lasVegas.cpp.o: ClaseTiempo.cpp
+CMakeFiles/main.dir/lasVegas.cpp.o: funcionesComunes.hpp
 CMakeFiles/main.dir/lasVegas.cpp.o: lasVegas.cpp
 CMakeFiles/main.dir/lasVegas.cpp.o: lasVegas.hpp
 
